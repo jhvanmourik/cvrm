@@ -1,0 +1,2054 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CV Risicocategorie</title>
+  <style>
+    :root {
+      --blauw: #2471a3; --blauw-licht: #eaf4fb;
+      --groen: #1a7f5a; --groen-licht: #e8f7f1;
+      --geel: #d4a017; --geel-licht: #fef9e7;
+      --oranje: #c96a10; --oranje-licht: #fef3e2;
+      --rood: #c0392b; --rood-licht: #fdecea;
+      --rand: #dde1e5; --grijs: #5d6d7e; --grijs-licht: #f4f6f7; --tekst: #1c2833;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f0f3f6; min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 24px 14px 60px; color: var(--tekst);
+    }
+
+    /* ── HEADER ── */
+    .pagina-header {
+      width: 100%; max-width: 540px; margin-bottom: 14px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .pagina-titel { font-size: 1.15rem; font-weight: 800; color: var(--blauw); }
+    .pagina-bron  { font-size: 0.72rem; color: var(--grijs); }
+
+    /* ── LEEFTIJD-BADGE (persistent) ── */
+    .leeftijd-badge {
+      display: none;
+      align-items: center; gap: 7px;
+      background: white; border: 1.5px solid var(--rand);
+      border-radius: 20px; padding: 4px 14px;
+      font-size: 0.82rem; color: var(--grijs); font-weight: 600;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .leeftijd-badge.zichtbaar { display: flex; }
+    .leeftijd-badge span { color: var(--blauw); font-size: 1rem; font-weight: 800; }
+
+    /* ── PROGRESS DOTS ── */
+    .progress-wrap {
+      display: none; gap: 5px; margin-bottom: 14px; width: 100%; max-width: 540px;
+    }
+    .progress-wrap.zichtbaar { display: flex; }
+    .prog-dot {
+      height: 4px; flex: 1; border-radius: 2px;
+      background: var(--rand); transition: background 0.3s;
+    }
+    .prog-dot.actief { background: var(--blauw); }
+    .prog-dot.klaar  { background: #a8dbc8; }
+
+    /* ── KAART ── */
+    .kaart {
+      background: white; border-radius: 18px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.10);
+      width: 100%; max-width: 540px;
+      overflow: hidden;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .kaart.fade-out { opacity: 0; transform: translateY(-8px); }
+
+    /* ── START SCHERM ── */
+    .start-body { padding: 32px 28px 28px; }
+    .start-body h2 { font-size: 1.1rem; font-weight: 800; color: var(--blauw); margin-bottom: 6px; }
+    .start-body p  { font-size: 0.86rem; color: var(--grijs); margin-bottom: 22px; line-height: 1.5; }
+    .leeftijd-input-wrap {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+    }
+    .leeftijd-input-wrap input {
+      width: 110px; padding: 14px 16px; font-size: 1.5rem; font-weight: 800;
+      border: 2.5px solid var(--rand); border-radius: 12px; text-align: center;
+      color: var(--tekst); transition: border-color 0.15s;
+    }
+    .leeftijd-input-wrap input:focus { outline: none; border-color: var(--blauw); }
+    .leeftijd-input-wrap label { font-size: 0.9rem; color: var(--grijs); font-weight: 600; }
+    .start-btn {
+      width: 100%; padding: 15px; border: none; border-radius: 12px;
+      background: var(--blauw); color: white; font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .start-btn:hover { background: #1a5c87; }
+    .start-btn:disabled { background: var(--rand); color: var(--grijs); cursor: not-allowed; }
+
+    /* ── VRAAG SCHERM ── */
+    .vraag-top {
+      padding: 20px 22px 16px;
+      border-bottom: 1px solid var(--rand);
+    }
+    .vraag-categorie {
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.5px; color: var(--grijs); margin-bottom: 6px;
+    }
+    .vraag-tekst {
+      font-size: 1.05rem; font-weight: 800; line-height: 1.4; color: var(--tekst);
+    }
+    .vraag-context {
+      font-size: 0.8rem; color: var(--grijs); margin-top: 5px; line-height: 1.5;
+    }
+
+    .vraag-antwoorden { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 9px; }
+
+    /* JA / NEE knoppen */
+    .jn-wrap { display: flex; gap: 10px; padding: 14px 16px 16px; }
+    .btn-ja, .btn-nee {
+      flex: 1; padding: 16px 10px; border: none; border-radius: 13px;
+      font-size: 1rem; font-weight: 800; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-ja  { background: #fdecea; color: var(--rood); }
+    .btn-nee { background: var(--groen-licht); color: var(--groen); }
+    .btn-ja:hover  { background: #f5c0bb; }
+    .btn-nee:hover { background: #c2ecdd; }
+
+    /* Keuze opties */
+    .keuze-optie {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border: 2px solid var(--rand);
+      border-radius: 11px; cursor: pointer; transition: all 0.15s;
+      background: white; user-select: none;
+    }
+    .keuze-optie:hover { border-color: var(--blauw); background: var(--blauw-licht); }
+    .keuze-icon { font-size: 1.1rem; flex-shrink: 0; width: 24px; text-align: center; }
+    .keuze-tekst { font-size: 0.88rem; font-weight: 600; line-height: 1.4; flex: 1; }
+    .keuze-sub   { font-size: 0.76rem; color: var(--grijs); font-weight: 400; margin-top: 1px; }
+    .keuze-badge {
+      font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 8px; flex-shrink: 0;
+    }
+    .badge-zeerhoog { background: var(--rood-licht); color: var(--rood); }
+    .badge-hoog     { background: var(--oranje-licht); color: var(--oranje); }
+    .badge-matig    { background: var(--geel-licht); color: var(--geel); }
+    .badge-laag     { background: var(--groen-licht); color: var(--groen); }
+    .badge-door     { background: var(--blauw-licht); color: var(--blauw); }
+
+    /* ── SCORE2 SECTIE ── */
+    .s2-wrap { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 14px; }
+    .s2-rij-label { font-size: 0.78rem; font-weight: 700; color: var(--grijs); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 7px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .chip {
+      padding: 8px 14px; border: 2px solid var(--rand); border-radius: 20px;
+      font-size: 0.83rem; font-weight: 600; cursor: pointer; transition: all 0.15s;
+      background: white; color: var(--grijs); user-select: none;
+    }
+    .chip:hover { border-color: var(--blauw); color: var(--blauw); background: var(--blauw-licht); }
+    .chip.actief { border-color: var(--blauw); background: var(--blauw); color: white; }
+
+    /* ── TERUG KNOP ── */
+    .kaart-footer {
+      padding: 0 16px 14px; display: flex; justify-content: flex-start;
+    }
+    .btn-terug {
+      padding: 7px 16px; border: 1.5px solid var(--rand); border-radius: 8px;
+      background: white; font-size: 0.82rem; color: var(--grijs); font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .btn-terug:hover { border-color: var(--blauw); color: var(--blauw); }
+
+    /* ── RESULTAAT ── */
+    .res-kaart {
+      display: none; width: 100%; max-width: 540px;
+      background: white; border-radius: 18px; overflow: hidden;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.10); margin-top: 14px;
+    }
+    .res-kaart.zichtbaar { display: block; }
+
+    .res-top { padding: 22px 22px 16px; }
+    .res-label-klein { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .res-naam { font-size: 1.5rem; font-weight: 900; line-height: 1.1; }
+    .res-pct-rij { display: flex; align-items: baseline; gap: 5px; margin-top: 4px; }
+    .res-pct-groot { font-size: 2.2rem; font-weight: 900; line-height: 1; }
+    .res-pct-sub { font-size: 0.78rem; opacity: 0.8; }
+    .res-reden-box { padding: 0 22px 14px; font-size: 0.87rem; line-height: 1.5; border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .res-info-rij  { padding: 12px 22px; font-size: 0.84rem; line-height: 1.5; border-bottom: 1px solid rgba(0,0,0,0.06); }
+    .res-info-rij strong { display: block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.4px; opacity: 0.7; margin-bottom: 2px; }
+    .res-tip { padding: 12px 22px 16px; font-size: 0.82rem; line-height: 1.5; color: #1a3a5c; background: var(--blauw-licht); }
+    .res-risicoleeftijd {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 6px; padding: 4px 12px;
+      background: rgba(0,0,0,0.07); border-radius: 20px;
+      font-size: 0.78rem; font-weight: 700; opacity: 0.9;
+    }
+
+    /* kleur-thema's */
+    .thema-zeerhoog .res-top { background: var(--rood-licht); }
+    .thema-zeerhoog .res-label-klein, .thema-zeerhoog .res-naam, .thema-zeerhoog .res-pct-groot { color: var(--rood); }
+    .thema-hoog .res-top { background: var(--oranje-licht); }
+    .thema-hoog .res-label-klein, .thema-hoog .res-naam, .thema-hoog .res-pct-groot { color: var(--oranje); }
+    .thema-matig .res-top { background: var(--geel-licht); }
+    .thema-matig .res-label-klein, .thema-matig .res-naam, .thema-matig .res-pct-groot { color: var(--geel); }
+    .thema-laag .res-top { background: var(--groen-licht); }
+    .thema-laag .res-label-klein, .thema-laag .res-naam, .thema-laag .res-pct-groot { color: var(--groen); }
+
+    /* ── BEHANDELADVIEZEN ── */
+    .behandel-sectie {
+      margin: 0; border-top: 1px solid rgba(0,0,0,0.07);
+    }
+    .behandel-kop {
+      padding: 12px 22px 8px;
+      font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.4px; color: var(--grijs);
+    }
+    .ba-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      padding: 0 22px 12px;
+    }
+    @media (max-width: 480px) { .ba-grid { grid-template-columns: 1fr; } }
+    .ba-blok {
+      background: var(--grijs-licht); border-radius: 10px;
+      padding: 11px 13px; font-size: 0.84rem;
+    }
+    .ba-titel {
+      font-size: 0.73rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.3px; color: var(--grijs); margin-bottom: 6px;
+    }
+    .ba-waarde { font-size: 0.9rem; line-height: 1.4; }
+    .ba-rij {
+      display: flex; justify-content: space-between; align-items: baseline;
+      gap: 8px; padding: 3px 0; border-bottom: 1px solid rgba(0,0,0,0.06);
+      font-size: 0.84rem; line-height: 1.4;
+    }
+    .ba-rij:last-of-type { border-bottom: none; }
+    .ba-sub { font-size: 0.73rem; color: var(--grijs); font-weight: 600; flex-shrink: 0; }
+    .ba-noot { font-size: 0.74rem; color: var(--grijs); margin-top: 5px; line-height: 1.4; font-style: italic; }
+    .ba-med {
+      margin: 0 22px 12px; border-radius: 10px; padding: 11px 13px;
+    }
+    .ba-aanbevolen { background: #eaf7ef; border: 1.5px solid #a8dbc8; }
+    .ba-overweeg   { background: var(--oranje-licht); border: 1.5px solid #e8c08a; }
+    .ba-niet       { background: var(--grijs-licht); border: 1.5px solid var(--rand); }
+    .ba-med-tekst  { font-size: 0.92rem; margin-top: 4px; }
+    .ba-voetnoot {
+      padding: 8px 22px 14px;
+      font-size: 0.72rem; color: var(--grijs); line-height: 1.5;
+      border-top: 1px solid rgba(0,0,0,0.06);
+    }
+
+    /* ── STATINE-TEGEL (binnen medicamenteus blok) ── */
+    .statine-tegel {
+      margin-top: 10px;
+      background: white;
+      border: 1.5px solid rgba(0,0,0,0.10);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .statine-kop {
+      padding: 9px 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 0.86rem; font-weight: 700; color: var(--blauw);
+      cursor: pointer; user-select: none;
+    }
+    .statine-kop:hover { background: var(--blauw-licht); }
+    .statine-kop .chev { font-size: 0.8rem; transition: transform 0.2s; opacity: 0.75; }
+    .statine-tegel.open .chev { transform: rotate(180deg); }
+    .statine-inhoud {
+      display: none;
+      padding: 11px 12px 12px;
+      border-top: 1px solid rgba(0,0,0,0.07);
+    }
+    .statine-tegel.open .statine-inhoud { display: block; }
+    .statine-input-rij { margin-bottom: 10px; font-size: 0.85rem; }
+    .statine-input-rij .lbl {
+      display: block; font-size: 0.72rem; color: var(--grijs);
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;
+      margin-bottom: 5px;
+    }
+    .statine-input-rij input[type=number] {
+      width: 110px; padding: 7px 10px;
+      border: 1.5px solid var(--rand); border-radius: 8px;
+      font-size: 0.92rem; font-weight: 700; font-family: inherit;
+    }
+    .statine-input-rij input[type=number]:focus { outline: none; border-color: var(--blauw); }
+    .statine-input-rij .hint { font-size: 0.73rem; color: var(--grijs); margin-left: 8px; }
+    .statine-chk { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.84rem; }
+    .statine-chk input { cursor: pointer; width: 16px; height: 16px; }
+    .statine-advies {
+      background: var(--grijs-licht); border-radius: 9px;
+      padding: 11px 13px; margin-top: 6px;
+    }
+    .statine-reden-chip {
+      display: inline-block; padding: 3px 10px;
+      background: #e0f2e9; color: #1c7349;
+      border-radius: 12px; font-size: 0.76rem; font-weight: 700;
+      margin-bottom: 7px;
+    }
+    .statine-reden-chip.hoog { background: var(--oranje-licht); color: var(--oranje); }
+    .statine-reden-chip.ok { background: #d1fae5; color: #065f46; }
+    .statine-reden-sub {
+      font-size: 0.78rem; color: var(--grijs); margin-bottom: 8px; line-height: 1.4;
+    }
+    .statine-stap {
+      padding: 8px 0; border-top: 1px solid rgba(0,0,0,0.08);
+    }
+    .statine-stap:first-of-type { border-top: none; padding-top: 2px; }
+    .statine-stap-kop {
+      font-size: 0.77rem; font-weight: 800; color: #334155;
+      margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .statine-optie {
+      font-size: 0.85rem; line-height: 1.45; padding-left: 14px;
+      position: relative; margin: 3px 0;
+    }
+    .statine-optie::before {
+      content: "•"; position: absolute; left: 3px; color: var(--grijs);
+    }
+    .statine-kern { font-weight: 700; }
+    .statine-optie .sub {
+      font-size: 0.75rem; color: var(--grijs); font-style: italic;
+      display: block; margin-top: 1px;
+    }
+
+    /* ── PCSK9 UITKLAP-BLOK ── */
+    .pcsk9-details {
+      margin-top: 9px;
+      border: 1.5px solid rgba(0,0,0,0.11);
+      border-radius: 9px; overflow: hidden;
+    }
+    .pcsk9-details summary {
+      padding: 8px 12px; list-style: none;
+      font-size: 0.84rem; font-weight: 700;
+      color: var(--blauw); cursor: pointer; user-select: none;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .pcsk9-details summary::-webkit-details-marker { display: none; }
+    .pcsk9-details summary:hover { background: var(--blauw-licht); }
+    .pcsk9-details summary::after {
+      content: "▼"; font-size: 0.75rem; opacity: 0.7;
+      transition: transform 0.2s; flex-shrink: 0; margin-left: 8px;
+    }
+    .pcsk9-details[open] summary::after { transform: rotate(180deg); }
+    .pcsk9-inhoud {
+      padding: 10px 12px 12px;
+      border-top: 1px solid rgba(0,0,0,0.07);
+      font-size: 0.82rem; line-height: 1.6;
+    }
+    .pcsk9-cat {
+      font-weight: 700; color: #334155; font-size: 0.79rem;
+      margin: 8px 0 3px; text-transform: uppercase; letter-spacing: 0.2px;
+    }
+    .pcsk9-cat:first-of-type { margin-top: 2px; }
+    .pcsk9-details.voorkeur { border-color: rgba(26,127,90,0.40); }
+    .pcsk9-details.voorkeur > summary { color: var(--groen); }
+    .pcsk9-details.voorkeur > summary:hover { background: var(--groen-licht); }
+
+    /* ── INFO TOOLTIP ── */
+    .info-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 15px; height: 15px; border-radius: 50%;
+      background: var(--blauw-licht); border: 1.5px solid var(--blauw);
+      color: var(--blauw); font-size: 0.62rem; font-weight: 800; font-style: normal;
+      cursor: help; position: relative; vertical-align: middle; margin-left: 5px;
+      flex-shrink: 0;
+    }
+    .info-tip {
+      display: none; position: fixed; z-index: 200;
+      background: #1c2833; color: white; border-radius: 9px;
+      padding: 10px 13px; font-size: 0.76rem; line-height: 1.55;
+      width: 260px; white-space: normal; font-weight: 400;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.30);
+      pointer-events: none;
+    }
+    .info-btn:hover .info-tip { display: block; }
+
+    /* ── BD TEGEL CHIPS ── */
+    .bd-opties { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
+    .bd-chip {
+      padding: 6px 12px; border: 1.5px solid var(--rand); border-radius: 20px;
+      font-size: 0.79rem; font-weight: 600; cursor: pointer; transition: all 0.15s;
+      background: white; color: var(--grijs); user-select: none;
+    }
+    .bd-chip:hover { border-color: var(--blauw); color: var(--blauw); background: var(--blauw-licht); }
+    .bd-chip.actief { border-color: var(--blauw); background: var(--blauw); color: white; }
+    .bd-chip-primair { border-color: var(--blauw); color: var(--blauw); font-weight: 700; }
+    .bd-chip-primair.actief { background: var(--blauw); color: white; }
+    .bd-scheidslijn {
+      width: 100%; border: none; border-top: 1px solid var(--rand);
+      margin: 4px 0 2px;
+    }
+    .bd-groep-label {
+      width: 100%; font-size: 0.69rem; font-weight: 700; color: var(--grijs);
+      text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px;
+    }
+
+    /* ── LIFE-CVD2 ── */
+    .life-sectie { border-top: 1px solid rgba(0,0,0,0.07); }
+    .life-kop { padding: 12px 22px 6px; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--grijs); }
+    .life-inputs { padding: 0 22px 10px; display: flex; flex-direction: column; gap: 10px; }
+    .life-result-box { margin: 4px 22px 14px; display: flex; flex-direction: column; gap: 10px; }
+    .life-per1 {
+      display: flex; align-items: baseline; gap: 10px;
+      padding: 14px 16px; border-radius: 11px;
+      background: var(--grijs-licht);
+    }
+    .life-per1-val { font-size: 2.6rem; font-weight: 900; line-height: 1; }
+    .life-per1-label { font-size: 0.84rem; color: var(--grijs); line-height: 1.3; }
+    .life-target-blok { background: var(--grijs-licht); border-radius: 11px; overflow: hidden; }
+    .life-target-kop { padding: 7px 13px; font-size: 0.73rem; font-weight: 700; color: var(--grijs); text-transform: uppercase; letter-spacing: 0.3px; background: rgba(0,0,0,0.04); }
+    .life-target-rij {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 9px 13px; border-top: 1px solid rgba(0,0,0,0.06);
+      font-size: 0.83rem; gap: 10px; line-height: 1.4;
+    }
+    .life-val {
+      padding: 3px 11px; border-radius: 8px; font-weight: 800;
+      font-size: 0.9rem; white-space: nowrap; flex-shrink: 0;
+    }
+    .life-noot { font-size: 0.72rem; color: var(--grijs); line-height: 1.5; font-style: italic; padding: 0 22px 14px; }
+    .life-tabs { display: flex; margin: 6px 22px 0; gap: 7px; }
+    .life-tab {
+      flex: 1; padding: 9px 8px; border: 2px solid var(--rand); border-radius: 10px;
+      font-size: 0.82rem; font-weight: 700; text-align: center; cursor: pointer;
+      background: white; color: var(--grijs); transition: all 0.15s; user-select: none;
+    }
+    .life-tab:hover { border-color: var(--blauw); color: var(--blauw); }
+    .life-tab.actief { background: var(--blauw); border-color: var(--blauw); color: white; }
+    .life-tab.uitgeschakeld { opacity: 0.45; cursor: default; pointer-events: none; }
+    #life-inhoud { padding: 0; }
+
+    .btn-opnieuw {
+      margin: 14px 22px 18px; padding: 11px 22px;
+      border: 2px solid var(--rand); border-radius: 11px;
+      background: white; font-size: 0.88rem; font-weight: 700;
+      color: var(--grijs); cursor: pointer; transition: all 0.15s; display: block;
+    }
+    .btn-opnieuw:hover { border-color: var(--blauw); color: var(--blauw); }
+
+    /* ── DOORSCHERMEN ── */
+    .door-banner {
+      padding: 12px 16px; background: var(--blauw-licht);
+      border-radius: 8px; font-size: 0.82rem; color: var(--blauw);
+      font-weight: 600; margin: 0 16px 10px; line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+
+<div class="pagina-header">
+  <div class="pagina-titel">🫀 CV Risicocategorie</div>
+  <div class="pagina-bron">NHG-CVRM · Tabel S1 + SCORE2</div>
+</div>
+
+<!-- Leeftijd badge (persistent) -->
+<div class="leeftijd-badge" id="leeftijd-badge">
+  <span id="badge-geslacht">🧑</span> <span id="badge-leeftijd">—</span> jaar
+</div>
+
+<!-- Progress dots -->
+<div class="progress-wrap" id="progress-wrap">
+  <div class="prog-dot" id="dot-0"></div>
+  <div class="prog-dot" id="dot-1"></div>
+  <div class="prog-dot" id="dot-2"></div>
+  <div class="prog-dot" id="dot-3"></div>
+  <div class="prog-dot" id="dot-4"></div>
+  <div class="prog-dot" id="dot-5"></div>
+</div>
+
+<!-- KAART (dynamisch gevuld) -->
+<div class="kaart" id="kaart"></div>
+
+<!-- RESULTAAT KAART -->
+<div class="res-kaart" id="res-kaart"></div>
+
+<script>
+// ─── BEHANDELADVIES DATA (Tabel 1, Praktische Handleiding NHG-CVRM 2026) ──────
+// ldl / bd: le70_v = vitaal ≤70, le70_k = kwetsbaar ≤70, gt70 = >70 jaar
+const behandelInfo = {
+  hvz: {
+    ldl: { le70_v:'<strong>&lt;1,8</strong> mmol/L', le70_k:'<strong>&lt;2,6</strong> mmol/L', gt70:'<strong>&lt;2,6</strong> mmol/L' },
+    ldl_noot: { le70_k:'Overweeg bij kwetsbare patiënten: als de streefwaarde niet haalbaar is, weeg de levensverwachting mee.', gt70:'Overweeg de levensverwachting bij ouderen >70 jaar.' },
+    bd: { le70_v:'&lt;140 mmHg (evt. &lt;130 mmHg)', le70_k:'&lt;150 mmHg (evt. &lt;140 mmHg)', gt70:'&lt;150 mmHg &amp; diastolisch &gt;70 mmHg' },
+    bd_noot: 'Voorzichtig titreren bij ouderen. Stop intensiveren bij diastolisch &lt;70 mmHg bij kwetsbare ouderen.',
+    med: 'aanbevolen', leefstijl: true, extra: null
+  },
+  zeerhoog: {
+    ldl: { le70_v:'<strong>&lt;2,6</strong> mmol/L', le70_k:'<strong>&lt;2,6</strong> mmol/L', gt70:'<strong>&lt;2,6</strong> mmol/L' },
+    ldl_noot: { gt70:'Of start niet / stop bij onvoldoende levensverwachting bij patiënten >70 jaar.' },
+    bd: { le70_v:'&lt;140 mmHg (evt. &lt;130 mmHg)', le70_k:'&lt;150 mmHg (evt. &lt;140 mmHg)', gt70:'&lt;150 mmHg &amp; diastolisch &gt;70 mmHg (voorzichtig titreren)' },
+    bd_noot: 'Voorzichtig titreren bij ouderen. Stop intensiveren bij diastolisch &lt;70 mmHg bij kwetsbare ouderen.',
+    med: 'aanbevolen', leefstijl: true, extra: null
+  },
+  hoog_med: {
+    ldl: { le70_v:'<strong>&lt;2,6</strong> mmol/L', le70_k:'<strong>&lt;2,6</strong> mmol/L', gt70:'<strong>&lt;2,6</strong> mmol/L' },
+    ldl_noot: {},
+    bd: { le70_v:'&lt;140 mmHg (evt. &lt;130 mmHg)', le70_k:'&lt;150 mmHg (evt. &lt;140 mmHg)', gt70:'&lt;150 mmHg &amp; diastolisch &gt;70 mmHg (voorzichtig titreren)' },
+    bd_noot: 'Voorzichtig titreren bij ouderen. Stop intensiveren bij diastolisch &lt;70 mmHg bij kwetsbare ouderen.',
+    med: 'overweeg', leefstijl: true, extra: null
+  },
+  hoog_score2: {
+    ldl: { le70_v:'<strong>&lt;2,6</strong> mmol/L', le70_k:'<strong>&lt;2,6</strong> mmol/L', gt70:'<strong>&lt;2,6</strong> mmol/L' },
+    ldl_noot: {},
+    bd: { le70_v:'&lt;140 mmHg (evt. &lt;130 mmHg)', le70_k:'&lt;150 mmHg (evt. &lt;140 mmHg)', gt70:'&lt;150 mmHg &amp; diastolisch &gt;70 mmHg' },
+    bd_noot: null,
+    med: 'overweeg', leefstijl: true, extra: null
+  },
+  matig_dm: {
+    ldl: { le70_v:'Bij keuze voor behandeling: <strong>&lt;2,6</strong> mmol/L', le70_k:'Bij keuze voor behandeling: <strong>&lt;2,6</strong> mmol/L', gt70:'n.v.t.' },
+    ldl_noot: {},
+    bd: { le70_v:'Bij keuze: &lt;140 mmHg (evt. &lt;130 mmHg)', le70_k:'Bij keuze: &lt;150 mmHg (evt. &lt;140 mmHg)', gt70:'n.v.t.' },
+    bd_noot: null,
+    med: 'doorgaans niet aangewezen', leefstijl: true, extra: null
+  },
+  matig_score2: {
+    ldl: { all:'n.v.t.' }, ldl_noot: {},
+    bd:  { all:'n.v.t.' }, bd_noot: null,
+    med: 'doorgaans niet aangewezen', leefstijl: true,
+    extra: 'Speciale aandacht bij jonge patiënten i.v.m. hoger leeftijdsrisico.'
+  },
+  laag: {
+    ldl: { all:'n.v.t.' }, ldl_noot: {},
+    bd:  { all:'n.v.t.' }, bd_noot: null,
+    med: 'doorgaans niet aangewezen', leefstijl: true, extra: null
+  }
+};
+// DM-paden: zelfde behandeldata, maar LIFE-CVD2 is niet van toepassing
+behandelInfo['zeerhoog_dm'] = behandelInfo['zeerhoog'];
+behandelInfo['hoog_dm']     = behandelInfo['hoog_med'];
+// LIFE-CVD2 uitsluitingen (HVZ en alle DM-groepen)
+const geenLifeGroepen = new Set(['hvz','zeerhoog_dm','hoog_dm','matig_dm']);
+
+// ─── STATINE TEGEL ──────────────────────────────────────────
+let statineVitaliteit = 'vitaal';
+
+function statineKiesVit(vit, elem) {
+  statineVitaliteit = vit;
+  elem.closest('.chips').querySelectorAll('.chip').forEach(c => c.classList.remove('actief'));
+  elem.classList.add('actief');
+  statineVulLDL('hvz');
+}
+
+function statineVulLDL(behandelGroep) {
+  const input = document.getElementById('ldl-onbehandeld');
+  const advies = document.getElementById('statine-advies');
+  if (!input || !advies) return;
+  const val = parseFloat(input.value.replace(',', '.'));
+  advies.innerHTML = (isNaN(val) || val <= 0)
+    ? renderStatineStandaard(behandelGroep)
+    : berekenStatineAdvies(val, behandelGroep);
+}
+
+function getStatineStreef(behandelGroep) {
+  if (behandelGroep === 'hvz' && pLeeftijd <= 70) {
+    return statineVitaliteit === 'kwetsbaar' ? 2.6 : 1.8;
+  }
+  return 2.6;
+}
+
+function ezetimibAdvies(behandelGroep) {
+  const heeftHVZ = behandelGroep === 'hvz';
+  const isOud = pLeeftijd > 70;
+  if (isOud && heeftHVZ) {
+    return 'Overweeg ezetimib 1dd 10 mg uitsluitend bij <strong>vitale ouderen met HVZ</strong>. Weeg voor- en nadelen samen met patiënt af.';
+  } else if (isOud) {
+    return 'Bij ouderen zonder vastgestelde HVZ: terughoudend met ezetimib. Overleg zo nodig.';
+  } else if (heeftHVZ) {
+    return 'Overweeg ezetimib 1dd 10 mg toe te voegen. Weeg samen met de patiënt de voor- en nadelen af van toevoegen versus een hogere LDL-waarde accepteren.';
+  } else {
+    return 'Ezetimib kan een optie zijn als voldoende LDL-reductie met een statine niet haalbaar blijkt. Weeg samen met de patiënt de voor- en nadelen af.';
+  }
+}
+
+function renderStatineStandaard(behandelGroep) {
+  const streef = getStatineStreef(behandelGroep);
+  const streefStr = streef === 1.8 ? '1,8' : '2,6';
+  const hvzJong = behandelGroep === 'hvz' && pLeeftijd <= 70 && statineVitaliteit === 'vitaal';
+  const drempelStr = hvzJong ? '3,0' : '4,3';
+  const laagRange = hvzJong ? '1,8–2,9' : '2,6–4,2';
+  return '<div class="statine-advies">'
+    + '<div class="statine-reden-sub" style="margin-bottom:8px">Voer het onbehandelde LDL in voor gepersonaliseerd advies. Streefwaarde: &lt;' + streefStr + ' mmol/L.</div>'
+    + '<div class="statine-stap">'
+    + '<div class="statine-stap-kop">🔽 &lt;40% daling nodig — LDL ' + laagRange + ' mmol/L</div>'
+    + '<div class="statine-optie"><span class="statine-kern">Atorvastatine 1dd 10 mg</span><span class="sub">laagste kosten</span></div>'
+    + '<div class="statine-optie"><span class="statine-kern">Rosuvastatine 1dd 5 mg</span><span class="sub">laagste kosten · alternatief</span></div>'
+    + '<div class="statine-optie"><span class="statine-kern">Simvastatine 1dd 40 mg</span><span class="sub">alternatief</span></div>'
+    + '</div>'
+    + '<div class="statine-stap">'
+    + '<div class="statine-stap-kop">⬆️ ≥40% daling nodig — LDL ≥' + drempelStr + ' mmol/L</div>'
+    + '<div class="statine-optie"><span class="statine-kern">Atorvastatine 1dd 20 mg</span><span class="sub">laagste kosten · 1e keuze</span></div>'
+    + '<div class="statine-optie"><span class="statine-kern">Rosuvastatine 1dd 10 mg</span><span class="sub">alternatief</span></div>'
+    + '</div>'
+    + '<div class="statine-stap">'
+    + '<div class="statine-stap-kop">CYP3A4-interacties (bij beide paden)</div>'
+    + '<div class="statine-optie"><span class="statine-kern">Pravastatine 1dd 40 mg</span><span class="sub">Diltiazem, verapamil, itraconazol, hiv-remmers — of intolerantie voor atorva/rosuva/simva</span></div>'
+    + '</div>'
+    + '</div>';
+}
+
+function berekenStatineAdvies(ldl, behandelGroep) {
+  const streef = getStatineStreef(behandelGroep);
+  const streefStr = streef === 1.8 ? '1,8' : '2,6';
+  const hvzJong = behandelGroep === 'hvz' && pLeeftijd <= 70 && statineVitaliteit === 'vitaal';
+  const drempelHoog = hvzJong ? 3.0 : 4.3;
+  const ldlStr = ldl.toFixed(1).replace('.', ',');
+
+  if (ldl < streef) {
+    return '<div class="statine-advies">'
+      + '<span class="statine-reden-chip ok">✅ LDL al op of onder streefwaarde</span>'
+      + '<div class="statine-reden-sub">LDL ' + ldlStr + ' mmol/L is al onder de streef van &lt;' + streefStr + ' mmol/L. Medicamenteuze cholesterolbehandeling o.b.v. LDL niet direct geïndiceerd.</div>'
+      + '</div>';
+  }
+
+  const isHoog = ldl >= drempelHoog;
+  const berekenPct = Math.round((1 - streef / ldl) * 100);
+
+  let html = '<div class="statine-advies">'
+    + '<span class="statine-reden-chip' + (isHoog ? ' hoog' : '') + '">'
+    + (isHoog ? '⬆️ Gewenste LDL-daling: ≥40%' : '🔽 Gewenste LDL-daling: &lt;40%')
+    + '</span>'
+    + '<div class="statine-reden-sub">LDL ' + ldlStr + ' → streef &lt;' + streefStr + ' mmol/L (≥' + berekenPct + '% daling vereist)</div>';
+
+  // STAP 1
+  html += '<div class="statine-stap">'
+    + '<div class="statine-stap-kop">Stap 1 — Start een statine</div>';
+  if (!isHoog) {
+    html += '<div class="statine-optie"><span class="statine-kern">Atorvastatine 1dd 10 mg</span><span class="sub">laagste kosten</span></div>'
+      + '<div class="statine-optie"><span class="statine-kern">Rosuvastatine 1dd 5 mg</span><span class="sub">laagste kosten · alternatief</span></div>'
+      + '<div class="statine-optie"><span class="statine-kern">Simvastatine 1dd 40 mg</span><span class="sub">alternatief</span></div>';
+  } else {
+    html += '<div class="statine-optie"><span class="statine-kern">Atorvastatine 1dd 20 mg</span><span class="sub">laagste kosten · 1e keuze</span></div>'
+      + '<div class="statine-optie"><span class="statine-kern">Rosuvastatine 1dd 10 mg</span><span class="sub">alternatief</span></div>';
+  }
+  html += '<div class="statine-optie" style="margin-top:3px"><span class="statine-kern">CYP3A4-interacties?</span><span class="sub">Geef pravastatine 1dd 40 mg (diltiazem, verapamil, itraconazol, hiv-remmers)</span></div>'
+    + '</div>';
+
+  // STAP 2
+  html += '<div class="statine-stap">'
+    + '<div class="statine-stap-kop">Stap 2 — Intensiveer bij onvoldoende effect na 3 mnd</div>'
+    + '<div class="statine-optie"><span class="statine-kern">Verhoog dosering in stapjes</span><span class="sub">Atorvastatine tot max 1dd 80 mg · rosuvastatine tot max 1dd 40 mg</span></div>';
+  if (!isHoog) {
+    html += '<div class="statine-optie"><span class="statine-kern">Simvastatine onvoldoende?</span><span class="sub">Vervang door atorvastatine 1dd 20 mg of rosuvastatine 1dd 10 mg, daarna verder ophogen indien nodig</span></div>';
+  }
+  html += '<div class="statine-optie"><span class="statine-kern">Bijwerkingen statine?</span><span class="sub">Staak en evalueer na 4 weken → herstart laagste verdraagbare dosis of switch naar andere statine</span></div>'
+    + '</div>';
+
+  // STAP 3
+  html += '<div class="statine-stap">'
+    + '<div class="statine-stap-kop">Stap 3 — Overweeg ezetimib en/of verwijzing</div>'
+    + '<div class="statine-optie"><span class="statine-kern">Ezetimib 1dd 10 mg</span><span class="sub">' + ezetimibAdvies(behandelGroep) + '</span></div>'
+    + '<details class="pcsk9-details">'
+    + '<summary>🔬 Verwijzing internist/cardioloog — PCSK9-remmer</summary>'
+    + '<div class="pcsk9-inhoud">'
+    + '<div style="font-size:0.77rem;color:var(--grijs);margin-bottom:6px">Bij onvoldoende LDL-reductie ondanks statine (± ezetimib):</div>'
+    + '<div class="pcsk9-cat">≤70 jaar mét hart- en vaatziekten</div>'
+    + '<div style="font-size:0.76rem;color:var(--grijs);margin-bottom:3px;padding-left:2px">Hoog geschatte recidiefkans, zoals:</div>'
+    + '<div class="statine-optie"><span class="statine-kern">Uitgebreid of progressief vaatlijden</span></div>'
+    + '<div class="statine-optie"><span class="statine-kern">Diabetes mellitus + HVZ</span></div>'
+    + '<div class="statine-optie"><span class="statine-kern">Familiaire hypercholesterolemie + HVZ</span></div>'
+    + '<div class="pcsk9-cat">≤70 jaar zónder hart- en vaatziekten</div>'
+    + '<div class="statine-optie"><span class="statine-kern">Familiaire hypercholesterolemie</span><span class="sub">met hoog of zeer hoog CV-risico</span></div>'
+    + '<div class="statine-optie"><span class="statine-kern">En/of diabetes mellitus</span></div>'
+    + '<div class="statine-optie"><span class="statine-kern">En/of chronische nierschade</span></div>'
+    + '</div>'
+    + '</details>'
+    + '</div>';
+
+  html += '<div class="ba-noot" style="margin-top:6px">🔁 Controleer LDL na 3 mnd tot streefwaarde bereikt. Daarna alleen nog op indicatie.</div>'
+    + '</div>';
+
+  return html;
+}
+
+// ─── BD TEGEL ───────────────────────────────────────────────
+const bdOpties = [
+  // Primaire opties (bovenaan)
+  { id:'standaard',    label:'Standaard stappenplan',           icoon:'📋', primair:true,  meds:null },
+  { id:'cns',          label:'Chronische nierschade',           icoon:'🫘', primair:false, meds:['RAS-remmer (ACE/ARB) bij ACR ≥ 3 mg/mmol'] },
+  // Situatie-specifiek (Tabel 5)
+  { id:'mi',           label:'Eerder myocardinfarct',           icoon:'❤️', primair:false, meds:['Bètablokker','ACE-remmer/ARB'] },
+  { id:'angina',       label:'Angina pectoris',                 icoon:'💔', primair:false, meds:['Bètablokker','Calciumantagonist'] },
+  { id:'hartfalen',    label:'Hartfalen',                       icoon:'🫀', primair:false, meds:['ACE-remmer/ARB','Bètablokker','Lis- of thiazidediureticum','Kaliumsparend diureticum\u00a0(o.a.\u00a0spironolacton)'] },
+  { id:'af',           label:'Atriumfibrilleren',               icoon:'〰️', primair:false, meds:['Bètablokker','Non-dihydropyridinecalciumkanaalblokker','ACE-remmer/ARB','Kaliumsparend diureticum\u00a0(o.a.\u00a0spironolacton)'] },
+  { id:'pav',          label:'Perifeer arterieel vaatlijden',   icoon:'🦵', primair:false, meds:['ACE-remmer'] },
+  { id:'dm',           label:'Diabetes mellitus',               icoon:'💉', primair:false, meds:['ACE-remmer/ARB'] },
+  { id:'zwangerschap', label:'Zwangerschap',                    icoon:'🤰', primair:false, meds:['Methyldopa','Labetalol','Calciumantagonist'] },
+  { id:'afrikaans',    label:'Afrikaanse herkomst (sub-Sahara)',icoon:'🌍', primair:false, meds:['Thiazidediureticum','Calciumantagonist'] },
+];
+
+function bdKiesOptie(id, elem) {
+  elem.closest('.bd-opties').querySelectorAll('.bd-chip').forEach(c => c.classList.remove('actief'));
+  elem.classList.add('actief');
+  const el = document.getElementById('bd-advies');
+  if (el) el.innerHTML = renderBDAdvies(id);
+}
+
+function renderStandaardStappenplan() {
+  const dr = (naam, sub) => '<div class="statine-optie"><span class="statine-kern">' + naam + '</span>'
+    + (sub ? '<span class="sub">' + sub + '</span>' : '') + '</div>';
+  const nt = (t) => '<div class="ba-noot" style="margin-top:4px">' + t + '</div>';
+  const wn = (t) => '<div class="ba-noot" style="margin-top:4px;color:var(--oranje)">⚠️ ' + t + '</div>';
+  const sub = (id, titel, inhoud) =>
+    '<details class="pcsk9-details" style="margin-top:5px"><summary>' + titel + '</summary>'
+    + '<div class="pcsk9-inhoud">' + inhoud + '</div></details>';
+  const niertip = '<i class="info-btn">i'
+    + '<span class="info-tip">'
+    + '<strong>Nierfunctiedaling na start RAS-remmer</strong><br>'
+    + '· eGFR 30–59: ≤20% daling acceptabel (min. 30); >20% → halveer dosis, check na 2 wk<br>'
+    + '· eGFR 15–30: halveer dosis, check na 2 wk<br>'
+    + '· eGFR &lt;15: stop ACE/ARB, check na 2 wk<br>'
+    + '· Blijvend &lt;30: overweeg nefroloog<br><br>'
+    + '<strong>Na start spironolacton</strong><br>'
+    + '· eGFR 15–44: halveer dosis, check na 2 wk<br>'
+    + '· eGFR &lt;15: stop, check na 2 wk<br>'
+    + '· Blijvend &lt;30: overweeg nefroloog'
+    + '</span></i>';
+
+  let h = '<div class="statine-advies">';
+
+  // ── STAP 1 ──
+  h += '<div class="statine-stap">'
+    + '<div class="statine-stap-kop">Stap 1 — Start met 1 of 2 middelen</div>'
+    + nt('Start met <strong>1 middel</strong> als SBD &lt;150 mmHg of bij oudere/kwetsbare patiënt.')
+    + nt('Start bij alle <strong>overige situaties met 2 middelen</strong> (combinatietherapie).')
+    + wn('Combineer NIET: bètablokker&nbsp;+&nbsp;diureticum (risico&nbsp;DM) &nbsp;|&nbsp; ACE-remmer&nbsp;+&nbsp;ARB (risico&nbsp;nierfalen).')
+    + nt('Evalueer na <strong>2 weken</strong>: bloeddruk, gebruik en bijwerkingen.')
+
+    + sub('1a', '1a — ACE-remmer ' + niertip,
+        dr('Enalapril 1dd 10 mg', 'ouderen: 5 mg')
+      + dr('Lisinopril 1dd 10 mg', 'ouderen: 5 mg')
+      + dr('Ramipril 1dd 2,5 mg', 'ouderen: 1,25 mg')
+      + dr('Perindopril 1dd 4 mg', 'ouderen: 2 mg')
+      + wn('Bij eGFR 10–50 mL/min: dosisaanpassing nodig (zie NHG-Formularium).'))
+
+    + sub('1b', '1b — ARB&nbsp; <span style="font-weight:400;font-size:0.78rem">minder kriebelhoest dan ACE-remmer</span>' + niertip,
+        dr('Candesartan 1dd 8 mg', 'ouderen: 4 mg')
+      + dr('Irbesartan 1dd 150 mg', 'ouderen: 75 mg')
+      + dr('Telmisartan 1dd 40 mg', 'ouderen: 20 mg')
+      + dr('Losartan 1dd 50 mg', 'ouderen: 25 mg')
+      + nt('Bij eGFR &gt;10 mL/min: geen dosisaanpassing nodig.'))
+
+    + sub('1c', '1c — Calciumantagonist',
+        dr('Amlodipine 1dd 5 mg', '')
+      + dr('Lercanidipine 1dd 10 mg', '')
+      + nt('🫀 Bij atriumfibrilleren: voorkeur voor diltiazem mga 1dd 200 mg of verapamil mga 1dd 120 mg.')
+      + wn('Geef bij voorkeur geen calciumantagonist bij hartfalen.'))
+
+    + sub('1d', '1d — Thiazidediureticum',
+        dr('Hydrochloorthiazide 1dd 12,5 mg', '')
+      + dr('Chloortalidon 1dd 12,5 mg', '')
+      + wn('Niet bij jicht of eerder basaalcel-/plaveiselcelcarcinoom.')
+      + nt('☀️ Fotosensibilisatie: adviseer verstandig zonnen. HCT verhoogt bij langdurig gebruik het recidiefrisico op huidcarcinoom.'))
+
+    + sub('1e', '1e — Bètablokker',
+        dr('Metoprololsuccinaat mga 1dd 50 mg', '\'s morgens')
+      + dr('Atenolol 1dd 25 mg', '')
+      + dr('Bisoprolol 1dd 5 mg', '\'s morgens')
+      + wn('Niet bij verhoogd risico op diabetes (overgewicht, hyperglykemie). Ongunstig effect op lipidenmetabolisme.'))
+    + '</div>';
+
+  // ── STAP 2 ──
+  h += '<div class="statine-stap">'
+    + '<div class="statine-stap-kop">Stap 2 — Combineer middelen</div>'
+    + nt('Gestart met 1 middel? → voeg 2e toe, dan indien nodig 3e.')
+    + nt('Gestart met 2 middelen? → voeg 3e middel toe.')
+    + wn('Combineer NIET: bètablokker&nbsp;+&nbsp;diureticum &nbsp;|&nbsp; ACE-remmer&nbsp;+&nbsp;ARB.')
+    + nt('🔁 Toevoeging ACE-remmer/ARB bij diureticum: halveer startdosering of onderbreek diureticum 2–3 dagen voor start. Uitzondering: lisdiureticum bij hartfalen <em>niet</em> stoppen.')
+    + nt('💊 Overweeg combinatiepreparaat (betere therapietrouw). Laagste kosten: enalapril/lisinopril of ARB (telmisartan, losartan, irbesartan) + hydrochloorthiazide.')
+    + nt('Evalueer na 2 weken. Heroverweeg secundaire oorzaken, therapietrouw en leefstijl.')
+    + '</div>';
+
+  // ── STAP 3 ──
+  h += '<div class="statine-stap">'
+    + '<div class="statine-stap-kop">Stap 3 — Verhoog de doseringen</div>'
+    + nt('Verhoog in stapjes (elke 2–4 weken) tot maximaal verdraagbare dosis.')
+
+    + sub('max', 'Maximale doseringen',
+        '<div class="pcsk9-cat">ACE-remmer</div>'
+      + dr('Enalapril max 1dd 40 mg', '') + dr('Lisinopril max 1dd 80 mg', '')
+      + dr('Perindopril max 1dd 8 mg', '') + dr('Ramipril max 1dd 10 mg', '')
+      + '<div class="pcsk9-cat">ARB</div>'
+      + dr('Telmisartan max 1dd 80 mg', '') + dr('Candesartan max 1dd 32 mg', '')
+      + dr('Losartan max 1dd 100 mg', '') + dr('Irbesartan max 1dd 300 mg', '')
+      + '<div class="pcsk9-cat">Calciumantagonist</div>'
+      + dr('Amlodipine max 1dd 10 mg', '') + dr('Lercanidipine max 1dd 20 mg', '')
+      + dr('Diltiazem (AF) max 1dd 400 mg', '') + dr('Verapamil (AF) max 2dd 240 mg', '')
+      + '<div class="pcsk9-cat">Thiazidediureticum</div>'
+      + dr('Hydrochloorthiazide max 1dd 25 mg', '') + dr('Chloortalidon max 1dd 25 mg', '')
+      + '<div class="pcsk9-cat">Bètablokker</div>'
+      + dr('Metoprololsuccinaat max 1dd 200 mg', '') + dr('Atenolol max 1dd 100 mg', '')
+      + dr('Bisoprolol max 1dd 20 mg', ''))
+
+    + wn('SBD ≥140 mmHg ondanks 3 middelen adequaat gedoseerd + voldoende therapietrouw = therapieresistente hypertensie → stap 4 of verwijzing.')
+    + '</div>';
+
+  // ── STAP 4 ──
+  h += '<div class="statine-stap">'
+    + '<div class="statine-stap-kop">Stap 4 — Spironolacton of verwijzing</div>'
+    + nt('Overweeg eerst: therapieontrouw, wittejashypertensie, hoge zoutinname, alcoholgebruik.')
+    + nt('📏 Ambulante meting aanbevolen (thuis of 24-uurs).')
+    + dr('Spironolacton 1dd 25–50 mg', 'bij 3 middelen uit stap 1')
+    + dr('Amiloride 1dd 10–20 mg', 'alternatief bij intolerantie voor spironolacton')
+    + nt('Of: verwijzing naar internist of cardioloog.')
+    + '</div>';
+
+  h += '</div>';
+  return h;
+}
+
+function renderBDSituatieAdvies(id) {
+  const dr = (naam, s) => '<div class="statine-optie"><span class="statine-kern">' + naam + '</span>'
+    + (s ? '<span class="sub">' + s + '</span>' : '') + '</div>';
+  const nt = (t) => '<div class="ba-noot" style="margin-top:4px">' + t + '</div>';
+  const wn = (t) => '<div class="ba-noot" style="margin-top:4px;color:var(--oranje)">⚠️ ' + t + '</div>';
+  const uitklap = (titel, inhoud, v) =>
+    '<details class="pcsk9-details' + (v ? ' voorkeur' : '') + '" style="margin-top:5px"><summary>' + titel + '</summary>'
+    + '<div class="pcsk9-inhoud">' + inhoud + '</div></details>';
+
+  // ── medicatieklasse-helpers met voorkeur-flag ──
+  const beta = (v) => uitklap('1e — Bètablokker',
+    dr('Metoprololsuccinaat mga 1dd 50 mg', '\'s morgens')
+    + dr('Atenolol 1dd 25 mg', '')
+    + dr('Bisoprolol 1dd 5 mg', '\'s morgens')
+    + wn('Niet bij verhoogd DM-risico (overgewicht, hyperglykemie).'), v);
+
+  const niertip = '<i class="info-btn">i'
+    + '<span class="info-tip">'
+    + '<strong>Nierfunctiedaling na start RAS-remmer</strong><br>'
+    + '· eGFR 30–59: ≤20% daling acceptabel (min. 30); >20% → halveer dosis, check na 2 wk<br>'
+    + '· eGFR 15–30: halveer dosis, check na 2 wk<br>'
+    + '· eGFR &lt;15: stop ACE/ARB, check na 2 wk<br>'
+    + '· Blijvend &lt;30: overweeg nefroloog<br><br>'
+    + '<strong>Na start spironolacton</strong><br>'
+    + '· eGFR 15–44: halveer dosis, check na 2 wk<br>'
+    + '· eGFR &lt;15: stop, check na 2 wk<br>'
+    + '· Blijvend &lt;30: overweeg nefroloog'
+    + '</span></i>';
+
+  const ace = (v) => uitklap('1a — ACE-remmer ' + niertip,
+    dr('Enalapril 1dd 10 mg', 'ouderen: 5 mg')
+    + dr('Lisinopril 1dd 10 mg', 'ouderen: 5 mg')
+    + dr('Ramipril 1dd 2,5 mg', 'ouderen: 1,25 mg')
+    + dr('Perindopril 1dd 4 mg', 'ouderen: 2 mg')
+    + wn('Bij eGFR 10–50 mL/min: dosisaanpassing (NHG-Formularium).'), v);
+
+  const arb = (v) => uitklap('1b — ARB \u00a0<span style="font-weight:400;font-size:0.78rem">minder kriebelhoest dan ACE-remmer</span>' + niertip,
+    dr('Candesartan 1dd 8 mg', 'ouderen: 4 mg')
+    + dr('Irbesartan 1dd 150 mg', 'ouderen: 75 mg')
+    + dr('Telmisartan 1dd 40 mg', 'ouderen: 20 mg')
+    + dr('Losartan 1dd 50 mg', 'ouderen: 25 mg')
+    + nt('Bij eGFR >10 mL/min: geen dosisaanpassing nodig.'), v);
+
+  const ca = (v) => uitklap('1c — Calciumantagonist (DHP)',
+    dr('Amlodipine 1dd 5 mg', '')
+    + dr('Lercanidipine 1dd 10 mg', ''), v);
+
+  const caNonDHP = (v) => uitklap('Non-DHP calciumantagonist',
+    dr('Diltiazem mga 1dd 200 mg', '')
+    + dr('Verapamil mga 1dd 120 mg', ''), v);
+
+  const thiazide = (v) => uitklap('1d — Thiazidediureticum',
+    dr('Hydrochloorthiazide 1dd 12,5 mg', '')
+    + dr('Chloortalidon 1dd 12,5 mg', '')
+    + wn('Niet bij jicht of eerder huidcarcinoom.'), v);
+
+  const lis = (v) => uitklap('Lisdiureticum',
+    dr('Furosemide 1dd 20–40 mg', 'titreer op effect; 2dd bij ernstige vochtretentie'), v);
+
+  const spiro = (v) => uitklap('Kaliumsparend diureticum',
+    dr('Spironolacton 1dd 25–50 mg', 'ook aldosteronantagonist bij hartfalen'), v);
+
+  const ovKop = '<div class="pcsk9-cat" style="margin-top:12px;padding-top:8px;border-top:1px solid var(--rand)">Overige antihypertensiva</div>';
+
+  let h = '<div class="statine-advies">';
+
+  switch (id) {
+
+    case 'mi':
+      h += '<div class="statine-stap">'
+        + '<div class="statine-stap-kop">❤️ Eerder myocardinfarct</div>'
+        + nt('Combineer bètablokker <strong>(cardioprotectief)</strong> met ACE-remmer/ARB <strong>(LV-bescherming, recidiefpreventie)</strong>.')
+        + beta(true) + ace(true) + arb(true)
+        + ovKop
+        + ca(false) + thiazide(false)
+        + '</div>';
+      break;
+
+    case 'angina':
+      h += '<div class="statine-stap">'
+        + '<div class="statine-stap-kop">💔 Angina pectoris</div>'
+        + nt('Bètablokker 1e keuze bij angina; calciumantagonist als alternatief of aanvulling.')
+        + beta(true) + ca(true)
+        + wn('Bij combinatie bètablokker + CA: gebruik DHP (amlodipine/lercanidipine). Combineer bètablokker NIET met verapamil of diltiazem — risico op bradycardie/AV-blok.')
+        + ovKop
+        + ace(false) + arb(false) + thiazide(false)
+        + '</div>';
+      break;
+
+    case 'hartfalen':
+      h += '<div class="statine-stap">'
+        + '<div class="statine-stap-kop">🫀 Hartfalen</div>'
+        + nt('ACE-remmer/ARB + bètablokker als basale therapie. Voeg diureticum toe bij vochtretentie.')
+        + ace(true) + arb(true) + beta(true) + lis(true) + thiazide(true) + spiro(true)
+        + ovKop
+        + '<div class="ba-noot" style="margin-top:5px;color:var(--oranje)">⚠️ Bij voorkeur geen calciumantagonisten bij hartfalen (negatief inotroop effect).</div>'
+        + '</div>';
+      break;
+
+    case 'af':
+      h += '<div class="statine-stap">'
+        + '<div class="statine-stap-kop">〰️ Atriumfibrilleren</div>'
+        + nt('Bètablokker <em>of</em> non-DHP calciumantagonist voor <strong>frequentieregulering</strong>. ACE-remmer/ARB voor <strong>cardioprotectie</strong>.')
+        + beta(true) + caNonDHP(true) + ace(true) + arb(true) + spiro(true)
+        + wn('Combineer bètablokker NIET met verapamil of diltiazem — ernstige bradycardie/hartblokrisico.')
+        + ovKop
+        + thiazide(false) + ca(false)
+        + '</div>';
+      break;
+
+    case 'pav':
+      h += '<div class="statine-stap">'
+        + '<div class="statine-stap-kop">🦵 Perifeer arterieel vaatlijden</div>'
+        + nt('ACE-remmer 1e keuze bij PAV; vaatprotectief effect.')
+        + ace(true) + arb(true)
+        + ovKop
+        + ca(false) + thiazide(false)
+        + wn('Bètablokker: bij ernstig PAV (Fontaine III–IV) relatief gecontraïndiceerd — gebruik met voorzichtigheid.')
+        + beta(false)
+        + '</div>';
+      break;
+
+    case 'dm':
+      h += '<div class="statine-stap">'
+        + '<div class="statine-stap-kop">💉 Diabetes mellitus</div>'
+        + nt('ACE-remmer of ARB 1e keuze — <strong>nefroprotectief</strong>, ook bij normoalbuminurie.')
+        + ace(true) + arb(true)
+        + nt('Bij micro- of macroalbuminurie: ACE-remmer of ARB verplicht als antihypertensivum.')
+        + ovKop
+        + ca(false) + thiazide(false)
+        + wn('Bètablokker: maskering hypoglykemie bij DM — gebruik met voorzichtigheid.')
+        + beta(false)
+        + '</div>';
+      break;
+
+    case 'zwangerschap':
+      h += '<div class="statine-stap">'
+        + '<div class="statine-stap-kop">🤰 Zwangerschap</div>'
+        + uitklap('Methyldopa — 1e keuze',
+            dr('Methyldopa 2-3dd 250 mg', 'max 2000 mg/dag')
+            + nt('Langste veiligheidsprofiel in de zwangerschap.'), true)
+        + uitklap('Labetalol — alternatief',
+            dr('Labetalol 2-3dd 100 mg', 'max 1200 mg/dag')
+            + nt('Bètablokker + alfa-blokker; goed alternatief voor methyldopa.'), true)
+        + uitklap('Calciumantagonist — 3e keuze of combinatie',
+            dr('Nifedipine mga 1dd 30 mg', 'of amlodipine 1dd 5 mg'), true)
+        + wn('ACE-remmers en ARBs zijn GECONTRAÏNDICEERD in de zwangerschap (teratogeen, nierschade foetus).')
+        + nt('📖 Zie NHG-Standaard Hypertensieve aandoeningen in de zwangerschap voor volledig beleid.')
+        + '</div>';
+      break;
+
+    case 'afrikaans':
+      h += '<div class="statine-stap">'
+        + '<div class="statine-stap-kop">🌍 Afrikaanse herkomst (sub-Sahara)</div>'
+        + nt('Thiazidediureticum en calciumantagonist effectiever als monotherapie. ACE-remmers/ARBs minder effectief als monotherapie (lagere renine-activiteit).')
+        + ca(true) + thiazide(true)
+        + nt('Combinatie met ACE-remmer of ARB kan worden overwogen bij onvoldoende effect.')
+        + ovKop
+        + ace(false) + arb(false) + beta(false)
+        + '</div>';
+      break;
+
+    case 'cns':
+      h += '<div class="statine-stap">'
+        + '<div class="statine-stap-kop">🫘 Chronische nierschade</div>'
+        + nt('<strong>RAS-remmer aanbevolen</strong> bij matig of ernstig verhoogde albuminurie (ACR ≥ 3 mg/mmol).')
+        + ace(true) + arb(true)
+        + '<div class="ba-noot" style="margin-top:6px;padding:7px 10px;background:var(--blauw-licht);border-radius:7px;border-left:3px solid var(--blauw)">'
+        + '<strong>🔬 Monitoring bij start RAS-remmer (eGFR &lt; 60 ml/min):</strong><br>'
+        + 'Controleer na 1–2 weken serumkalium en eGFR.<br>'
+        + 'Daling eGFR van maximaal <strong>20%</strong> is acceptabel.'
+        + '</div>'
+        + ovKop
+        + ca(false) + thiazide(false) + beta(false)
+        + '</div>';
+      break;
+  }
+
+  h += '</div>';
+  return h;
+}
+
+function renderBDAdvies(id) {
+  if (id === 'standaard') return renderStandaardStappenplan();
+  return renderBDSituatieAdvies(id);
+}
+
+function renderBDTegel(behandelGroep) {
+  const primairChips = bdOpties.filter(o => o.primair)
+    .map(o => '<div class="bd-chip bd-chip-primair" onclick="bdKiesOptie(\'' + o.id + '\',this)">' + o.icoon + '\u00a0' + o.label + '</div>').join('');
+  const situatieChips = bdOpties.filter(o => !o.primair)
+    .map(o => '<div class="bd-chip" onclick="bdKiesOptie(\'' + o.id + '\',this)">' + o.icoon + '\u00a0' + o.label + '</div>').join('');
+  return '<div class="statine-tegel" id="bd-tegel">'
+    + '<div class="statine-kop" onclick="document.getElementById(\'bd-tegel\').classList.toggle(\'open\')">'
+    + '<span>🩸 Bloeddruk — medicatiekeuze &amp; dosering</span>'
+    + '<span class="chev">▼</span>'
+    + '</div>'
+    + '<div class="statine-inhoud">'
+    + '<div class="bd-opties">'
+    + primairChips
+    + '<div class="bd-scheidslijn"></div>'
+    + '<div class="bd-groep-label">Specifieke situaties (Tabel 5)</div>'
+    + situatieChips
+    + '</div>'
+    + '<div id="bd-advies" style="margin-top:8px"></div>'
+    + '</div>'
+    + '</div>';
+}
+
+function renderStatineTegel(behandelGroep) {
+  statineVitaliteit = 'vitaal';
+  const hvzJong = behandelGroep === 'hvz' && pLeeftijd <= 70;
+  const vitChips = hvzJong
+    ? '<div style="margin-bottom:10px"><div class="s2-rij-label" style="margin-bottom:5px">Vitaliteit patiënt (bepaalt LDL-streef)</div>'
+      + '<div class="chips">'
+      + '<div class="chip actief" onclick="statineKiesVit(\'vitaal\',this)">Vitaal (&lt;1,8 mmol/L)</div>'
+      + '<div class="chip" onclick="statineKiesVit(\'kwetsbaar\',this)">Kwetsbaar (&lt;2,6 mmol/L)</div>'
+      + '</div></div>'
+    : '';
+  return '<div class="statine-tegel" id="statine-tegel">'
+    + '<div class="statine-kop" onclick="document.getElementById(\'statine-tegel\').classList.toggle(\'open\')">'
+    + '<span>💊 Cholesterol — statinekeuze &amp; dosering</span>'
+    + '<span class="chev">▼</span>'
+    + '</div>'
+    + '<div class="statine-inhoud">'
+    + vitChips
+    + '<div class="statine-input-rij">'
+    + '<label class="lbl" for="ldl-onbehandeld">Onbehandeld LDL-cholesterol (mmol/L)</label>'
+    + '<input type="number" id="ldl-onbehandeld" min="0.5" max="15" step="0.1" placeholder="bijv. 3.8"'
+    + ' oninput="statineVulLDL(\'' + behandelGroep + '\')">'
+    + '<span class="hint">— laat leeg voor algemeen overzicht</span>'
+    + '</div>'
+    + '<div id="statine-advies">' + renderStatineStandaard(behandelGroep) + '</div>'
+    + '</div>'
+    + '</div>';
+}
+
+function renderBehandel(behandelGroep) {
+  const b = behandelInfo[behandelGroep];
+  if (!b) return '';
+  const oud = pLeeftijd > 70;
+
+  // LDL waarden
+  let ldlHtml = '';
+  if (b.ldl.all) {
+    ldlHtml = `<div class="ba-waarde">${b.ldl.all}</div>`;
+  } else if (oud) {
+    ldlHtml = `<div class="ba-waarde">${b.ldl.gt70}</div>`;
+    if (b.ldl_noot.gt70) ldlHtml += `<div class="ba-noot">ℹ️ ${b.ldl_noot.gt70}</div>`;
+  } else {
+    ldlHtml = `
+      <div class="ba-rij"><span class="ba-sub">Vitaal</span><span>${b.ldl.le70_v}</span></div>
+      <div class="ba-rij"><span class="ba-sub">Kwetsbaar</span><span>${b.ldl.le70_k}</span></div>`;
+    if (b.ldl_noot.le70_k) ldlHtml += `<div class="ba-noot">ℹ️ ${b.ldl_noot.le70_k}</div>`;
+  }
+
+  // BD waarden
+  let bdHtml = '';
+  if (b.bd.all) {
+    bdHtml = `<div class="ba-waarde">${b.bd.all}</div>`;
+  } else if (oud) {
+    bdHtml = `<div class="ba-waarde">${b.bd.gt70}</div>`;
+  } else {
+    bdHtml = `
+      <div class="ba-rij"><span class="ba-sub">Vitaal</span><span>${b.bd.le70_v}</span></div>
+      <div class="ba-rij"><span class="ba-sub">Kwetsbaar</span><span>${b.bd.le70_k}</span></div>`;
+  }
+  if (b.bd_noot) bdHtml += `<div class="ba-noot">ℹ️ ${b.bd_noot}</div>`;
+
+  // Medicamenteus advies kleur & icoon
+  const medKleur = { 'aanbevolen':'ba-aanbevolen', 'overweeg':'ba-overweeg', 'doorgaans niet aangewezen':'ba-niet' };
+  const medIcoon = { 'aanbevolen':'💊', 'overweeg':'🔄', 'doorgaans niet aangewezen':'⚪' };
+
+  return `
+  <div class="behandel-sectie">
+    <div class="behandel-kop">📋 Behandeladviezen (Tabel 1 — NHG-CVRM 2026)</div>
+
+    <div class="ba-grid">
+      <div class="ba-blok">
+        <div class="ba-titel">💊 LDL-streefwaarde</div>
+        ${ldlHtml}
+      </div>
+      <div class="ba-blok">
+        <div class="ba-titel">🩸 Syst. bloeddruk streefwaarde</div>
+        ${bdHtml}
+      </div>
+    </div>
+
+    <div class="ba-blok ba-med ${medKleur[b.med]}">
+      <div class="ba-titel">Medicamenteuze behandeling</div>
+      <div class="ba-med-tekst">${medIcoon[b.med]} <strong>${b.med.charAt(0).toUpperCase() + b.med.slice(1)}</strong></div>
+      ${b.leefstijl ? '<div class="ba-noot" style="margin-top:4px">✅ Leefstijladviezen altijd aanbevolen</div>' : ''}
+      ${b.extra ? `<div class="ba-noot" style="margin-top:6px">⚠️ ${b.extra}</div>` : ''}
+      ${(b.med === 'aanbevolen' || b.med === 'overweeg') ? renderStatineTegel(behandelGroep) : ''}
+      ${(b.med === 'aanbevolen' || b.med === 'overweeg') ? renderBDTegel(behandelGroep) : ''}
+    </div>
+
+    <div class="ba-voetnoot">Streefwaarden betreffen spreekkamermetingen. Vitaliteit bepaalt welke streefwaarde van toepassing is. Zie Tabel 6 voor bloeddruk en Tabel 5 voor LDL in de NHG-Standaard CVRM.</div>
+  </div>`;
+}
+
+// ─── LIFE-CVD2 DATA ─────────────────────────────────────────
+// Jaren HVZ-vrij leven gewonnen per 1 mmol/L LDL-daling
+// [geslacht][roken][leeftijdIdx 0-7][bpIdx 0=100-119..3=160-179][nonHdlIdx 0-3]
+// Bron: LIFE-CVD2 model (Jaspers NEM et al.), tabel NHG-CVRM Praktische Handleiding
+// ⚠️ Waarden overgetypt uit figuur; spot-check via life-cvd2-verificatie.html
+const lifeData = {
+  v:{n:[
+    [[0.5,0.6,0.6,0.7],[0.7,0.7,0.8,0.9],[0.9,0.9,1.0,1.1],[1.1,1.2,1.3,1.5]], // 40-44
+    [[0.5,0.6,0.6,0.7],[0.7,0.7,0.8,0.9],[0.8,0.9,1.0,1.1],[1.0,1.1,1.3,1.4]], // 45-49
+    [[0.5,0.6,0.6,0.7],[0.7,0.7,0.8,0.8],[0.8,0.9,1.0,1.0],[1.0,1.1,1.2,1.3]], // 50-54
+    [[0.5,0.6,0.6,0.6],[0.6,0.7,0.7,0.8],[0.8,0.8,0.9,1.0],[0.9,1.0,1.1,1.2]], // 55-59
+    [[0.5,0.5,0.6,0.6],[0.6,0.6,0.7,0.7],[0.7,0.8,0.8,0.9],[0.9,0.9,1.0,1.1]], // 60-64
+    [[0.5,0.5,0.6,0.6],[0.6,0.6,0.6,0.7],[0.7,0.7,0.8,0.8],[0.8,0.8,0.9,1.0]], // 65-69
+    [[0.4,0.5,0.5,0.5],[0.5,0.6,0.6,0.6],[0.6,0.7,0.7,0.8],[0.7,0.8,0.8,0.9]], // 70-74
+    [[0.4,0.4,0.4,0.5],[0.5,0.5,0.5,0.6],[0.5,0.6,0.6,0.7],[0.6,0.7,0.7,0.8]]  // 75-79
+  ],r:[
+    [[0.6,0.7,0.8,0.9],[0.8,0.9,1.0,1.1],[1.0,1.2,1.4,1.6],[1.4,1.6,1.8,2.1]], // 40-44
+    [[0.5,0.6,0.7,0.8],[0.7,0.8,0.9,1.0],[1.0,1.1,1.2,1.4],[1.3,1.4,1.6,1.8]], // 45-49
+    [[0.5,0.6,0.7,0.7],[0.7,0.8,0.8,0.9],[0.9,1.0,1.1,1.2],[1.1,1.2,1.4,1.6]], // 50-54
+    [[0.5,0.6,0.6,0.6],[0.6,0.6,0.7,0.8],[0.8,0.9,1.0,1.1],[1.0,1.1,1.2,1.3]], // 55-59
+    [[0.5,0.5,0.5,0.6],[0.6,0.6,0.6,0.7],[0.6,0.7,0.7,0.8],[0.8,0.9,1.0,1.1]], // 60-64
+    [[0.5,0.5,0.5,0.5],[0.5,0.5,0.6,0.6],[0.6,0.6,0.7,0.8],[0.7,0.8,0.9,0.9]], // 65-69
+    [[0.3,0.4,0.4,0.4],[0.4,0.5,0.5,0.5],[0.5,0.6,0.6,0.7],[0.6,0.7,0.7,0.8]], // 70-74
+    [[0.3,0.3,0.3,0.4],[0.3,0.4,0.4,0.4],[0.4,0.4,0.5,0.5],[0.5,0.5,0.6,0.6]]  // 75-79
+  ]},
+  m:{n:[
+    [[0.6,0.6,0.7,0.8],[0.7,0.8,1.0,1.1],[1.0,1.1,1.3,1.5],[1.3,1.5,1.8,2.1]], // 40-44
+    [[0.5,0.6,0.7,0.8],[0.7,0.8,0.9,1.0],[0.9,1.1,1.2,1.4],[1.2,1.4,1.7,1.9]], // 45-49
+    [[0.5,0.6,0.6,0.7],[0.7,0.8,0.9,1.0],[0.9,1.1,1.1,1.3],[1.2,1.3,1.5,1.7]], // 50-54
+    [[0.5,0.5,0.6,0.7],[0.6,0.7,0.8,0.9],[0.8,0.9,1.0,1.1],[1.1,1.2,1.3,1.5]], // 55-59
+    [[0.5,0.5,0.6,0.6],[0.6,0.7,0.7,0.8],[0.7,0.8,0.9,1.0],[0.9,1.0,1.2,1.3]], // 60-64
+    [[0.5,0.5,0.6,0.6],[0.5,0.6,0.6,0.7],[0.7,0.7,0.8,0.9],[0.8,0.9,1.0,1.1]], // 65-69
+    [[0.4,0.4,0.4,0.5],[0.4,0.5,0.5,0.6],[0.6,0.6,0.7,0.8],[0.7,0.8,0.8,0.9]], // 70-74
+    [[0.3,0.3,0.4,0.4],[0.4,0.4,0.5,0.5],[0.5,0.5,0.6,0.6],[0.6,0.7,0.7,0.8]]  // 75-79
+  ],r:[
+    [[0.7,0.9,1.0,1.2],[1.0,1.2,1.4,1.7],[1.3,1.5,1.9,2.2],[1.6,2.0,2.4,2.8]], // 40-44
+    [[0.6,0.7,0.9,1.1],[0.9,1.1,1.3,1.5],[1.2,1.4,1.7,2.0],[1.5,1.8,2.1,2.5]], // 45-49
+    [[0.6,0.7,0.9,1.0],[0.8,1.0,1.1,1.3],[1.1,1.2,1.5,1.7],[1.3,1.6,1.8,2.1]], // 50-54
+    [[0.6,0.6,0.8,0.9],[0.7,0.8,1.0,1.1],[0.9,1.1,1.2,1.4],[1.1,1.3,1.5,1.7]], // 55-59
+    [[0.5,0.6,0.7,0.7],[0.6,0.7,0.8,0.9],[0.8,0.9,1.0,1.2],[1.0,1.1,1.2,1.4]], // 60-64
+    [[0.5,0.6,0.6,0.7],[0.5,0.6,0.7,0.7],[0.6,0.7,0.8,0.9],[0.8,0.9,1.0,1.1]], // 65-69
+    [[0.3,0.4,0.4,0.5],[0.4,0.5,0.5,0.6],[0.5,0.6,0.6,0.7],[0.6,0.7,0.8,0.9]], // 70-74
+    [[0.2,0.3,0.3,0.3],[0.3,0.3,0.4,0.4],[0.4,0.4,0.5,0.5],[0.5,0.5,0.6,0.6]]  // 75-79
+  ]}
+};
+
+// ─── LIFE-CVD2 STOPPEN MET ROKEN DATA ───────────────────────
+// [geslacht][leeftijdIdx 0-7][bpIdx 0=100-119..3=160-179][nonHdlIdx 0-3]
+// Alleen voor rokers. Bron: LIFE-CVD2 model, NHG-CVRM 2024
+const lifeRokenData = {
+  v:[
+    [[3.4,3.6,3.8,4.0],[3.8,4.0,4.3,4.6],[4.4,4.6,5.0,5.4],[5.1,5.5,5.9,6.5]], // 40-44
+    [[3.4,3.5,3.7,3.8],[3.7,3.9,4.1,4.3],[4.2,4.4,4.7,5.0],[4.8,5.1,5.4,5.9]], // 45-49
+    [[3.2,3.4,3.5,3.7],[3.5,3.7,3.9,4.1],[3.9,4.1,4.4,4.6],[4.4,4.6,4.9,5.3]], // 50-54
+    [[3.1,3.2,3.3,3.5],[3.3,3.5,3.6,3.8],[3.7,3.8,4.0,4.2],[4.0,4.2,4.5,4.7]], // 55-59
+    [[2.9,3.0,3.1,3.2],[3.1,3.2,3.4,3.5],[3.3,3.5,3.7,3.8],[3.8,4.0,4.2,4.4]], // 60-64
+    [[2.7,2.8,2.9,3.0],[2.8,2.9,3.1,3.2],[3.0,3.1,3.3,3.4],[3.2,3.4,3.5,3.7]], // 65-69
+    [[2.3,2.4,2.6,2.7],[2.5,2.6,2.7,2.8],[2.6,2.8,3.0,3.0],[2.8,2.9,3.1,3.3]], // 70-74
+    [[2.0,2.1,2.2,2.3],[2.1,2.2,2.3,2.5],[2.2,2.3,2.5,2.6],[2.3,2.5,2.6,2.8]]  // 75-79
+  ],
+  m:[
+    [[3.9,4.0,4.3,4.5],[4.5,4.7,5.0,5.5],[5.2,5.5,6.0,6.6],[5.9,6.4,7.0,7.8]], // 40-44
+    [[3.8,3.9,4.1,4.3],[4.3,4.5,4.8,5.1],[4.9,5.2,5.6,6.1],[5.6,6.0,6.5,7.1]], // 45-49
+    [[3.6,3.7,3.8,4.0],[4.0,4.2,4.4,4.7],[4.5,4.8,5.1,5.5],[5.1,5.4,5.8,6.3]], // 50-54
+    [[3.3,3.4,3.5,3.7],[3.7,3.8,4.0,4.2],[4.1,4.3,4.5,4.8],[4.5,4.8,5.1,5.4]], // 55-59
+    [[3.0,3.1,3.2,3.3],[3.3,3.4,3.5,3.7],[3.6,3.8,3.9,4.1],[3.9,4.1,4.4,4.6]], // 60-64
+    [[2.7,2.8,2.9,3.0],[2.9,3.0,3.1,3.2],[3.1,3.2,3.4,3.5],[3.4,3.5,3.7,3.9]], // 65-69
+    [[2.2,2.3,2.4,2.5],[2.4,2.5,2.6,2.7],[2.6,2.7,2.8,2.9],[2.8,2.9,3.0,3.1]], // 70-74
+    [[1.8,1.9,1.9,2.0],[1.9,2.0,2.1,2.2],[2.1,2.1,2.2,2.3],[2.2,2.3,2.4,2.5]]  // 75-79
+  ]
+};
+
+// ─── LIFE-CVD2 BLOEDDRUK DATA ────────────────────────────────
+// Jaren HVZ-vrij leven gewonnen per 10 mmHg systolische bloeddrukdaling
+// Alleen van toepassing bij SBD > 140 mmHg, bij gezonde personen zonder HVZ of diabetes
+// Structuur: [geslacht][roken][leeftijdIdx 0-7][bpCatIdx: 0=140-159, 1=160-179][nonHdlIdx 0-3]
+// Bron: LIFE-CVD2 model (Jaspers NEM et al.), tabel uit NHG-CVRM Praktische Handleiding 2024
+// ⚠️ Waarden gelezen uit figuur — verificatie met originele publicatie aanbevolen
+const lifeBpData = {
+  v:{
+    n:[ // Vrouwen, Niet-roker
+      [[0.7,0.8,0.9,1.0],[1.0,1.1,1.2,1.3]], // 40-44
+      [[0.7,0.8,0.9,1.0],[0.9,1.0,1.1,1.3]], // 45-49
+      [[0.6,0.7,0.8,0.9],[0.8,0.9,1.0,1.2]], // 50-54
+      [[0.6,0.7,0.8,0.9],[0.8,0.9,1.0,1.1]], // 55-59
+      [[0.6,0.7,0.7,0.8],[0.8,0.9,0.9,1.0]], // 60-64
+      [[0.6,0.6,0.7,0.8],[0.7,0.8,0.8,0.9]], // 65-69
+      [[0.6,0.6,0.7,0.7],[0.7,0.7,0.8,0.8]], // 70-74
+      [[0.5,0.5,0.6,0.6],[0.6,0.6,0.7,0.7]]  // 75-79
+    ],
+    r:[ // Vrouwen, Roker
+      [[1.0,1.2,1.4,1.5],[1.3,1.4,1.7,1.9]], // 40-44
+      [[0.9,1.0,1.1,1.3],[1.1,1.3,1.5,1.7]], // 45-49
+      [[0.8,0.9,1.0,1.1],[1.0,1.1,1.2,1.3]], // 50-54
+      [[0.7,0.8,0.9,1.0],[0.9,1.0,1.1,1.2]], // 55-59
+      [[0.7,0.7,0.8,0.9],[0.8,0.9,1.0,1.1]], // 60-64
+      [[0.7,0.8,0.9,1.0],[0.8,0.9,1.0,1.0]], // 65-69
+      [[0.7,0.7,0.8,0.8],[0.7,0.8,0.8,0.9]], // 70-74
+      [[0.6,0.6,0.7,0.7],[0.7,0.7,0.8,0.8]]  // 75-79
+    ]
+  },
+  m:{
+    n:[ // Mannen, Niet-roker
+      [[0.9,1.1,1.2,1.5],[1.2,1.4,1.6,1.9]], // 40-44
+      [[0.8,0.9,1.1,1.3],[1.1,1.3,1.5,1.7]], // 45-49
+      [[0.8,0.9,1.1,1.3],[1.0,1.2,1.4,1.6]], // 50-54
+      [[0.8,1.0,1.1,1.3],[1.0,1.1,1.2,1.4]], // 55-59
+      [[0.6,0.7,0.9,1.0],[0.8,0.9,1.0,1.2]], // 60-64
+      [[0.6,0.7,0.7,0.8],[0.7,0.8,0.9,1.0]], // 65-69
+      [[0.5,0.6,0.6,0.7],[0.6,0.7,0.8,0.8]], // 70-74
+      [[0.4,0.4,0.5,0.5],[0.4,0.5,0.5,0.6]]  // 75-79
+    ],
+    r:[ // Mannen, Roker
+      [[1.1,1.3,1.6,2.0],[1.5,1.8,2.1,2.6]], // 40-44
+      [[1.1,1.3,1.5,1.8],[1.4,1.6,1.9,2.3]], // 45-49
+      [[0.9,1.1,1.3,1.5],[1.2,1.4,1.6,1.9]], // 50-54
+      [[0.9,1.1,1.3,1.5],[1.2,1.4,1.5,1.9]], // 55-59
+      [[0.7,0.8,1.0,1.1],[0.9,1.1,1.3,1.5]], // 60-64
+      [[0.7,0.8,0.9,1.0],[0.9,1.0,1.2,1.3]], // 65-69
+      [[0.6,0.6,0.7,0.8],[0.7,0.8,0.9,1.0]], // 70-74
+      [[0.5,0.5,0.5,0.6],[0.5,0.6,0.6,0.7]]  // 75-79
+    ]
+  }
+};
+
+const ldlSchattingPerNonHDL = [2.7, 3.7, 4.7, 5.5]; // mmol/L (non-HDL midpoint - 0.8)
+let lifeS1 = { geslacht: null, roken: null, bp: null, nonhdl: null };
+let lifeModeGlobal = 'ldl';
+
+function lifeKleur(val) {
+  if (val < 0.5)  return { bg:'#f4f6f7', clr:'#5d6d7e' };
+  if (val < 1.0)  return { bg:'#fef9e7', clr:'#8a6000' };
+  if (val < 1.5)  return { bg:'#fef3e2', clr:'#c96a10' };
+  if (val < 2.0)  return { bg:'#fdecea', clr:'#c0392b' };
+  return { bg:'#f5cac8', clr:'#922b21' };
+}
+
+function renderLifeResultHTML(lifeVal, nonhdlIdx, behandelGroep) {
+  const kl = lifeKleur(lifeVal);
+  const ldlHuidig = ldlSchattingPerNonHDL[nonhdlIdx];
+
+  const targets = [];
+  if (behandelGroep === 'hvz' && pLeeftijd <= 70) {
+    targets.push({ label:'Vitaal (≤70 jr)', ldl:1.8 });
+    targets.push({ label:'Kwetsbaar (≤70 jr)', ldl:2.6 });
+  } else {
+    targets.push({ label: pLeeftijd > 70 ? '>70 jaar' : 'Streefwaarde', ldl:2.6 });
+  }
+
+  const targetRijen = targets.map(t => {
+    const red = Math.max(0, ldlHuidig - t.ldl);
+    if (red <= 0) return `<div class="life-target-rij"><span>${t.label} (doel &lt;${t.ldl})</span><span class="life-val" style="background:${kl.bg};color:${kl.clr}">Al op streef</span></div>`;
+    const winst = Math.round(red * lifeVal * 10) / 10;
+    const kw = lifeKleur(winst);
+    return `<div class="life-target-rij"><span>${t.label}: ~${ldlHuidig} → &lt;${t.ldl} mmol/L (−${red.toFixed(1)} mmol/L)</span><span class="life-val" style="background:${kw.bg};color:${kw.clr}">+${winst.toFixed(1)} jr</span></div>`;
+  }).join('');
+
+  return `<div class="life-result-box">
+    <div class="life-per1" style="background:${kl.bg}">
+      <div class="life-per1-val" style="color:${kl.clr}">${lifeVal.toFixed(1)}</div>
+      <div class="life-per1-label">jaar HVZ-vrij per 1 mmol/L LDL-daling</div>
+    </div>
+    <div class="life-target-blok">
+      <div class="life-target-kop">Winst bij bereiken streefwaarde (geschat LDL nu ~${ldlHuidig} mmol/L)</div>
+      ${targetRijen}
+    </div>
+  </div>
+  <div class="life-noot">📖 LIFE-CVD2 model (Jaspers et al.). LDL geschat als non-HDL midpoint −0,8 mmol/L. Individuele waarden kunnen afwijken.</div>`;
+}
+
+// ─── LIFE: TAB TOGGLE ───────────────────────────────────────
+function setLifeMode(mode, isScore2, behandelGroep) {
+  lifeModeGlobal = mode;
+  document.querySelectorAll('.life-tab').forEach(t =>
+    t.classList.toggle('actief', t.dataset.mode === mode));
+  const el = document.getElementById('life-inhoud');
+  if (el) el.innerHTML = mode === 'ldl'
+    ? lifeInhoudLDL(isScore2, behandelGroep)
+    : mode === 'roken'
+    ? lifeInhoudRoken(isScore2, behandelGroep)
+    : lifeInhoudBP(isScore2, behandelGroep);
+}
+
+function lifeTabs(isScore2, behandelGroep, isRoker) {
+  const rokenUit = isRoker ? '' : ' uitgeschakeld';
+  return `<div class="life-tabs">
+    <div class="life-tab actief" data-mode="ldl" onclick="setLifeMode('ldl',${isScore2},'${behandelGroep}')">💊 LDL −1 mmol/L</div>
+    <div class="life-tab${rokenUit}" data-mode="roken" onclick="setLifeMode('roken',${isScore2},'${behandelGroep}')">🚭 Stoppen met roken${rokenUit?' ✕':''}</div>
+    <div class="life-tab" data-mode="bp" onclick="setLifeMode('bp',${isScore2},'${behandelGroep}')">🩸 BD −10 mmHg</div>
+  </div>`;
+}
+
+// ─── LIFE: LDL INHOUD ───────────────────────────────────────
+function lifeInhoudLDL(isScore2, behandelGroep) {
+  if (isScore2) {
+    const { geslacht, leeftijdIdx, roken, bp, nonhdl } = s2;
+    if (geslacht===null||leeftijdIdx===null||roken===null||bp===null||nonhdl===null) return '';
+    return renderLifeResultHTML(lifeData[geslacht][roken][leeftijdIdx][bpIdx[bp]][nonhdl], nonhdl, behandelGroep);
+  } else {
+    const lIdx = leeftijdGroepen.findIndex((g,i) => pLeeftijd >= 40+i*5 && pLeeftijd <= 44+i*5);
+    const { geslacht, roken, bp, nonhdl } = lifeS1;
+    const mkChips = (veld, opties) => opties.map(([v,l]) =>
+      `<div class="chip${lifeS1[veld]===(veld==='nonhdl'?parseInt(v):v)?' actief':''}" onclick="lifeKies('${veld}','${v}',this,false,'${behandelGroep}')">${l}</div>`).join('');
+    const res = (geslacht && roken && bp !== null && nonhdl !== null && lIdx >= 0)
+      ? renderLifeResultHTML(lifeData[geslacht][roken][lIdx][bpIdx[bp]][nonhdl], nonhdl, behandelGroep)
+      : '<div class="life-noot" style="padding:4px 0 10px">Vul alle velden in voor de berekening.</div>';
+    const gRij = pGeslacht ? '' : `<div><div class="s2-rij-label">Geslacht</div><div class="chips">${mkChips('geslacht',[['v','♀ Vrouw'],['m','♂ Man']])}</div></div>`;
+    return `<div class="life-inputs">
+      ${gRij}
+      <div><div class="s2-rij-label">Rookstatus</div><div class="chips">${mkChips('roken',[['n','🚭 Niet-roker'],['r','🚬 Roker']])}</div></div>
+      <div><div class="s2-rij-label">Systolische bloeddruk</div><div class="chips">${mkChips('bp',[['100','100–119'],['120','120–139'],['140','140–159'],['160','160–179 mmHg']])}</div></div>
+      <div><div class="s2-rij-label">Non-HDL cholesterol</div><div class="chips">${mkChips('nonhdl',[['0','3,0–3,9'],['1','4,0–4,9'],['2','5,0–5,9'],['3','≥6,0 mmol/L']])}</div></div>
+    </div>
+    <div id="life-s1-result">${res}</div>`;
+  }
+}
+
+// ─── LIFE: ROKEN INHOUD ──────────────────────────────────────
+function lifeInhoudRoken(isScore2, behandelGroep) {
+  if (isScore2) {
+    const { geslacht, leeftijdIdx, bp, nonhdl, roken } = s2;
+    if (roken !== 'r') return `<div class="life-noot" style="padding:10px 0 10px">🚭 Patiënt rookt niet — stoppen met roken is niet van toepassing.</div>`;
+    if (geslacht===null||leeftijdIdx===null||bp===null||nonhdl===null) return '';
+    const val = lifeRokenData[geslacht][leeftijdIdx][bpIdx[bp]][nonhdl];
+    return renderLifeRokenHTML(val);
+  } else {
+    const lIdx = leeftijdGroepen.findIndex((g,i) => pLeeftijd >= 40+i*5 && pLeeftijd <= 44+i*5);
+    const { geslacht, roken, bp, nonhdl } = lifeS1;
+    if (roken === 'n') return `<div class="life-noot" style="padding:10px 0 10px">🚭 Patiënt rookt niet — stoppen met roken is niet van toepassing.</div>`;
+    const mkChips = (veld, opties) => opties.map(([v,l]) =>
+      `<div class="chip${lifeS1[veld]===(veld==='nonhdl'?parseInt(v):v)?' actief':''}" onclick="lifeKies('${veld}','${v}',this,false,'${behandelGroep}')">${l}</div>`).join('');
+    const res = (geslacht && roken === 'r' && bp !== null && nonhdl !== null && lIdx >= 0)
+      ? renderLifeRokenHTML(lifeRokenData[geslacht][lIdx][bpIdx[bp]][nonhdl])
+      : '<div class="life-noot" style="padding:4px 0 10px">Selecteer rookstatus (Roker), bloeddruk en non-HDL.</div>';
+    const gRij = pGeslacht ? '' : `<div><div class="s2-rij-label">Geslacht</div><div class="chips">${mkChips('geslacht',[['v','♀ Vrouw'],['m','♂ Man']])}</div></div>`;
+    return `<div class="life-inputs">
+      ${gRij}
+      <div><div class="s2-rij-label">Rookstatus</div><div class="chips">${mkChips('roken',[['n','🚭 Niet-roker'],['r','🚬 Roker']])}</div></div>
+      <div><div class="s2-rij-label">Systolische bloeddruk</div><div class="chips">${mkChips('bp',[['100','100–119'],['120','120–139'],['140','140–159'],['160','160–179 mmHg']])}</div></div>
+      <div><div class="s2-rij-label">Non-HDL cholesterol</div><div class="chips">${mkChips('nonhdl',[['0','3,0–3,9'],['1','4,0–4,9'],['2','5,0–5,9'],['3','≥6,0 mmol/L']])}</div></div>
+    </div>
+    <div id="life-s1-result">${res}</div>`;
+  }
+}
+
+function renderLifeRokenHTML(val) {
+  const kl = lifeKleur(val);
+  return `<div class="life-result-box">
+    <div class="life-per1" style="background:${kl.bg}">
+      <div class="life-per1-val" style="color:${kl.clr}">${val.toFixed(1)}</div>
+      <div class="life-per1-label">jaar HVZ-vrij gewonnen door volledig te stoppen met roken</div>
+    </div>
+  </div>
+  <div class="life-noot">📖 LIFE-CVD2 model (Jaspers et al.). Winst bij volledige rookstop t.o.v. huidige leefstijl/behandeling. Alleen van toepassing bij rokers zonder HVZ of diabetes.</div>`;
+}
+
+// ─── LIFE: BLOEDDRUK RESULTAAT ───────────────────────────────
+function renderLifeBpResultHTML(bp, geslacht, roken, leeftijdIdx, nonHdlIdx) {
+  const bpCatIdx = bp === '160' ? 1 : 0;
+  const valThis = lifeBpData[geslacht][roken][leeftijdIdx][bpCatIdx][nonHdlIdx];
+  const kl = lifeKleur(valThis);
+  const bpLabel = bp === '160' ? '160–179' : '140–159';
+
+  let targetRijen = '';
+  if (bp === '140') {
+    const kw = lifeKleur(valThis);
+    targetRijen = `<div class="life-target-rij"><span>Bereiken &lt;140 mmHg (~1 stap van 10 mmHg)</span><span class="life-val" style="background:${kw.bg};color:${kw.clr}">+${valThis.toFixed(1)} jr</span></div>`;
+  } else {
+    // 160-179: stap 1 in 160-range, stap 2 in 140-range
+    const val140 = lifeBpData[geslacht][roken][leeftijdIdx][0][nonHdlIdx];
+    const totaal = Math.round((valThis + val140) * 10) / 10;
+    const kwT = lifeKleur(totaal);
+    const kw140 = lifeKleur(val140);
+    targetRijen = `
+      <div class="life-target-rij"><span>Stap 1 — 160–179 → ~150 mmHg</span><span class="life-val" style="background:${kl.bg};color:${kl.clr}">+${valThis.toFixed(1)} jr</span></div>
+      <div class="life-target-rij"><span>Stap 2 — ~150 → &lt;140 mmHg</span><span class="life-val" style="background:${kw140.bg};color:${kw140.clr}">+${val140.toFixed(1)} jr</span></div>
+      <div class="life-target-rij" style="font-weight:700;border-top:2px solid rgba(0,0,0,0.1);padding-top:7px;margin-top:2px"><span>Totaal naar &lt;140 mmHg (~2 stappen)</span><span class="life-val" style="background:${kwT.bg};color:${kwT.clr}">+${totaal.toFixed(1)} jr</span></div>`;
+  }
+
+  return `<div class="life-result-box">
+    <div class="life-per1" style="background:${kl.bg}">
+      <div class="life-per1-val" style="color:${kl.clr}">${valThis.toFixed(1)}</div>
+      <div class="life-per1-label">jaar HVZ-vrij per 10 mmHg systolische bloeddrukdaling (bij ${bpLabel} mmHg)</div>
+    </div>
+    <div class="life-target-blok">
+      <div class="life-target-kop">Geschatte winst bij bereiken streefwaarde (&lt;140 mmHg)</div>
+      ${targetRijen}
+    </div>
+  </div>
+  <div class="life-noot">📖 LIFE-CVD2 model (Jaspers et al.). Alleen van toepassing bij personen zonder HVZ of diabetes, met een systolische bloeddruk &gt;140 mmHg. Schatting op basis van LIFE-CVD2 figuur.</div>`;
+}
+
+// ─── LIFE: BLOEDDRUK INHOUD ──────────────────────────────────
+function lifeInhoudBP(isScore2, behandelGroep) {
+  if (isScore2) {
+    const { geslacht, leeftijdIdx, roken, bp, nonhdl } = s2;
+    if (geslacht===null||leeftijdIdx===null||roken===null||bp===null||nonhdl===null) return '';
+    if (bp === '100' || bp === '120') {
+      const bpLab = bp === '100' ? '100–119' : '120–139';
+      return `<div class="life-noot" style="padding:10px 0 10px">✅ Systolische bloeddruk ${bpLab} mmHg — al onder de streefwaarde van &lt;140 mmHg. LIFE-CVD2 niet van toepassing voor bloeddruk.</div>`;
+    }
+    return renderLifeBpResultHTML(bp, geslacht, roken, leeftijdIdx, nonhdl);
+  } else {
+    const lIdx = leeftijdGroepen.findIndex((g,i) => pLeeftijd >= 40+i*5 && pLeeftijd <= 44+i*5);
+    const { geslacht, roken, bp, nonhdl } = lifeS1;
+    const mkChips = (veld, opties) => opties.map(([v,l]) =>
+      `<div class="chip${lifeS1[veld]===(veld==='nonhdl'?parseInt(v):v)?' actief':''}" onclick="lifeKies('${veld}','${v}',this,false,'${behandelGroep}')">${l}</div>`).join('');
+
+    let res = '';
+    if (bp === '100' || bp === '120') {
+      const bpLab = bp === '100' ? '100–119' : '120–139';
+      res = `<div class="life-noot" style="padding:4px 0 10px">✅ Systolische bloeddruk ${bpLab} mmHg — al onder de streefwaarde van &lt;140 mmHg.</div>`;
+    } else if (geslacht && roken && bp !== null && nonhdl !== null && lIdx >= 0) {
+      res = renderLifeBpResultHTML(bp, geslacht, roken, lIdx, nonhdl);
+    } else {
+      res = `<div class="life-noot" style="padding:4px 0 10px">Vul alle velden in voor de berekening.</div>`;
+    }
+
+    const gRij = pGeslacht ? '' : `<div><div class="s2-rij-label">Geslacht</div><div class="chips">${mkChips('geslacht',[['v','♀ Vrouw'],['m','♂ Man']])}</div></div>`;
+    return `<div class="life-inputs">
+      ${gRij}
+      <div><div class="s2-rij-label">Rookstatus</div><div class="chips">${mkChips('roken',[['n','🚭 Niet-roker'],['r','🚬 Roker']])}</div></div>
+      <div><div class="s2-rij-label">Systolische bloeddruk</div><div class="chips">${mkChips('bp',[['100','100–119'],['120','120–139'],['140','140–159'],['160','160–179 mmHg']])}</div></div>
+      <div><div class="s2-rij-label">Non-HDL cholesterol</div><div class="chips">${mkChips('nonhdl',[['0','3,0–3,9'],['1','4,0–4,9'],['2','5,0–5,9'],['3','≥6,0 mmol/L']])}</div></div>
+    </div>
+    <div id="life-s1-result">${res}</div>`;
+  }
+}
+
+// ─── LIFE: HOOFD RENDER ──────────────────────────────────────
+function renderLifeScore2(behandelGroep) {
+  const { geslacht, leeftijdIdx, roken, bp, nonhdl } = s2;
+  if (geslacht===null||leeftijdIdx===null||roken===null||bp===null||nonhdl===null) return '';
+  lifeModeGlobal = 'ldl';
+  const isRoker = roken === 'r';
+  return `<div class="life-sectie">
+    <div class="life-kop">📈 Winst van leefstijlinterventie (LIFE-CVD2)</div>
+    ${lifeTabs(true, behandelGroep, isRoker)}
+    <div id="life-inhoud">${lifeInhoudLDL(true, behandelGroep)}</div>
+  </div>`;
+}
+
+function renderLifeS1(behandelGroep) {
+  if (geenLifeGroepen.has(behandelGroep)) {
+    return `<div class="life-sectie">
+      <div class="life-kop">📈 Winst van leefstijlinterventie (LIFE-CVD2)</div>
+      <div class="life-noot" style="padding:8px 22px 14px">⚠️ Het LIFE-CVD2 model is uitsluitend van toepassing op <strong>gezonde personen zonder hart- en vaatziekten of diabetes mellitus</strong> en is hier niet van toepassing.</div>
+    </div>`;
+  }
+  const lIdx = leeftijdGroepen.findIndex((g,i) => pLeeftijd >= 40+i*5 && pLeeftijd <= 44+i*5);
+  if (lIdx < 0) return `<div class="life-sectie"><div class="life-kop">📈 Winst van leefstijlinterventie (LIFE-CVD2)</div><div class="life-noot" style="padding:8px 22px 14px">LIFE-CVD2 beschikbaar voor leeftijden 40–79 jaar.</div></div>`;
+  lifeModeGlobal = 'ldl';
+  return `<div class="life-sectie">
+    <div class="life-kop">📈 Winst van leefstijlinterventie (LIFE-CVD2)</div>
+    ${lifeTabs(false, behandelGroep, lifeS1.roken === 'r')}
+    <div id="life-inhoud">${lifeInhoudLDL(false, behandelGroep)}</div>
+  </div>`;
+}
+
+function lifeKies(veld, waarde, chip, isScore2, behandelGroep) {
+  lifeS1[veld] = veld === 'nonhdl' ? parseInt(waarde) : waarde;
+  chip.closest('.chips').querySelectorAll('.chip').forEach(c => c.classList.remove('actief'));
+  chip.classList.add('actief');
+  // update roken-tab status
+  const rokerTab = document.querySelectorAll('.life-tab')[1];
+  if (rokerTab) {
+    const isRoker = lifeS1.roken === 'r';
+    rokerTab.classList.toggle('uitgeschakeld', !isRoker);
+    rokerTab.innerHTML = `🚭 Stoppen met roken${isRoker ? '' : ' ✕'}`;
+  }
+  // update inhoud
+  const el = document.getElementById('life-inhoud');
+  if (el) el.innerHTML = lifeModeGlobal === 'ldl'
+    ? lifeInhoudLDL(false, behandelGroep)
+    : lifeModeGlobal === 'roken'
+    ? lifeInhoudRoken(false, behandelGroep)
+    : lifeInhoudBP(false, behandelGroep);
+}
+
+// ─── SCORE2 DATA ────────────────────────────────────────────
+const s2data = {
+  v:{n:[[[1,1,1,2],[1,2,2,2],[2,2,3,3],[3,3,4,4]],[[2,2,2,2],[2,2,3,3],[3,3,4,4],[4,5,5,6]],[[2,3,3,3],[3,3,4,5],[4,5,5,6],[6,7,8,9]],[[3,3,4,5],[4,5,6,7],[6,7,8,9],[8,9,11,12]],[[4,5,5,6],[6,6,8,9],[8,9,10,12],[11,12,14,16]],[[5,6,7,9],[7,9,10,11],[10,12,13,15],[14,16,18,21]],[[6,7,7,8],[9,9,10,11],[12,13,14,15],[17,19,21,22]],[[8,8,9,9],[11,11,12,13],[14,15,17,18],[21,22,23,24]]],r:[[[2,2,2,3],[2,3,3,4],[3,4,4,5],[4,5,6,7]],[[2,3,3,4],[3,4,5,5],[5,5,6,8],[6,7,9,10]],[[3,4,4,5],[5,5,6,7],[6,7,9,10],[9,10,12,14]],[[4,5,6,7],[6,7,8,10],[9,10,12,13],[12,14,16,18]],[[5,7,8,9],[8,9,11,13],[11,13,15,18],[16,18,21,24]],[[7,8,10,12],[10,12,13,16],[14,16,18,22],[19,22,25,29]],[[8,10,11,12],[12,13,15,17],[16,18,20,22],[22,25,27,30]],[[10,12,13,15],[14,16,18,20],[19,21,24,27],[26,29,32,35]]]},
+  m:{n:[[[1,2,2,2],[2,2,3,3],[3,3,4,5],[4,5,6,7]],[[2,2,3,3],[3,3,4,5],[4,5,6,7],[6,7,8,10]],[[3,3,4,5],[4,5,5,7],[6,7,8,9],[8,10,11,13]],[[4,5,6,7],[5,7,8,9],[8,9,11,13],[11,13,15,17]],[[5,6,7,8],[7,8,10,12],[10,12,14,16],[14,16,19,22]],[[6,8,9,11],[9,11,13,15],[12,14,17,20],[17,20,23,27]],[[7,8,9,11],[10,11,13,15],[13,15,17,20],[19,21,24,27]],[[8,10,11,13],[12,13,16,18],[16,18,21,25],[19,22,25,28]]],r:[[[2,3,3,4],[3,4,5,6],[4,5,7,8],[6,7,9,11]],[[3,4,5,6],[5,6,7,8],[7,8,10,12],[9,11,14,16]],[[4,5,7,8],[6,8,9,11],[9,11,13,16],[13,15,18,21]],[[6,7,9,11],[8,10,12,15],[12,14,17,21],[17,20,24,28]],[[7,9,11,13],[10,13,15,19],[15,18,22,26],[21,25,29,34]],[[9,11,13,17],[13,16,19,23],[18,22,26,31],[25,29,35,40]],[[10,13,15,18],[15,17,20,24],[20,23,27,31],[27,31,35,39]],[[12,14,18,21],[17,20,24,28],[23,27,31,35],[30,34,38,43]]]}
+};
+const leeftijdGroepen = ['40-44','45-49','50-54','55-59','60-64','65-69','70-74','75-79'];
+const bpIdx = {'100':0,'120':1,'140':2,'160':3};
+const leeftijdMid = [42,47,52,57,62,67,72,77];
+
+// ─── STATE ──────────────────────────────────────────────────
+let pLeeftijd = null;
+let pGeslacht = null;
+let pGeslachtStart = null; // tijdelijk tijdens startscherm
+let stapHistory = [];
+let huidig = 'start';
+let s2 = { geslacht:null, roken:null, bp:null, nonhdl:null };
+let mildeCNS = false;      // ×1,5 bij milde nierschade (Praktische Handleiding NHG-CVRM)
+let mildeCNSStep = null;   // stap-id waarop de mildeCNS-keuze werd gemaakt
+
+// ─── FLOW DEFINITIE ─────────────────────────────────────────
+// type: 'start' | 'jaNee' | 'keuze' | 'score2'
+// resultaat: { cat: 'zeerhoog'|'hoog'|'matig'|'laag', reden, streef, tip }
+// volgende: stapId (string)
+// doorgaan: { bericht, volgende } — toon bericht en ga automatisch verder
+
+const flow = {
+
+  hvz: {
+    categorie: "Hart- en vaatziekten",
+    vraag: "Heeft de patiënt vastgestelde hart- en vaatziekte?",
+    context: "Eerdere AMI, ACS, beroerte, TIA, PAV, coronaire of arteriële revascularisatie, aneurysma aortae — of plaque op beeldvorming (coronair angiogram, halsvaatecho, CTA)",
+    type: "jaNee",
+    ja: { actie: "resultaat", cat:"zeerhoog", behandelGroep:"hvz", reden:"Vastgestelde atherosclerotische HVZ (klinisch of beeldvormend aangetoond)", tip:null },
+    nee: { actie: "ga", id:"dm" }
+  },
+
+  dm: {
+    categorie: "Diabetes mellitus",
+    vraag: "Heeft de patiënt diabetes mellitus type 2?",
+    context: "Patiënten met DM type 1 en leeftijd > 40 jaar kunnen ook via deze categorieën worden geclassificeerd.",
+    type: "jaNee",
+    ja: { actie: "ga", id:"dm-hvz" },
+    nee: { actie: "ga", id:"cns" }
+  },
+
+  "dm-hvz": {
+    categorie: "Diabetes mellitus",
+    vraag: "Is er bij deze diabetespatiënt ook atherosclerotische HVZ vastgesteld?",
+    context: null,
+    type: "jaNee",
+    ja: { actie: "resultaat", cat:"zeerhoog", behandelGroep:"hvz", reden:"DM + vastgestelde atherosclerotische HVZ", tip:null },
+    nee: { actie: "ga", id:"dm-organ" }
+  },
+
+  "dm-organ": {
+    categorie: "Diabetes mellitus — eindorgaanschade",
+    vraag: "Is er ernstige eindorgaanschade aanwezig?",
+    context: "Selecteer de meest ernstige bevinding. Kies 'Geen' als geen van de criteria van toepassing is.",
+    type: "keuze",
+    opties: [
+      { icoon:"🫘", tekst:"eGFR < 45 mL/min/1,73 m²", sub:"Ongeacht albuminurie", badge:"zeerhoog", actie:"resultaat", cat:"zeerhoog", behandelGroep:"zeerhoog_dm", reden:"DM + ernstige eindorgaanschade: eGFR &lt;45 mL/min/1,73 m²", tip:null },
+      { icoon:"🫘", tekst:"eGFR 45–59 + microalbuminurie", sub:"ACR 3–30 mg/mmol", badge:"zeerhoog", actie:"resultaat", cat:"zeerhoog", behandelGroep:"zeerhoog_dm", reden:"DM + ernstige eindorgaanschade: eGFR 45–59 + microalbuminurie (ACR 3–30)", tip:null },
+      { icoon:"🔬", tekst:"Proteïnurie", sub:"ACR > 30 mg/mmol", badge:"zeerhoog", actie:"resultaat", cat:"zeerhoog", behandelGroep:"zeerhoog_dm", reden:"DM + ernstige eindorgaanschade: proteïnurie (ACR >30 mg/mmol)", tip:null },
+      { icoon:"🔗", tekst:"Microvasculaire aandoeningen ≥ 3 plaatsen", sub:"Bijv. microalbuminurie + retinopathie + neuropathie", badge:"zeerhoog", actie:"resultaat", cat:"zeerhoog", behandelGroep:"zeerhoog_dm", reden:"DM + ernstige eindorgaanschade: microvasculaire aandoeningen op ≥3 plaatsen", tip:null },
+      { icoon:"✅", tekst:"Geen van bovenstaande", sub:null, badge:"door", actie:"ga", id:"dm-duur" }
+    ]
+  },
+
+  "dm-duur": {
+    categorie: "Diabetes mellitus — duur & regulatie",
+    vraag: "Hoe lang bestaat de diabetes en hoe is de glykemische regulatie?",
+    context: null,
+    type: "keuze",
+    opties: [
+      { icoon:"🟡", tekst:"< 10 jaar, goed gereguleerd", sub:"Geen extra atherosclerotische HVZ-risicofactoren", badge:"matig", actie:"resultaat", cat:"matig", behandelGroep:"matig_dm", reden:"DM type 2 goed gereguleerd, korter dan 10 jaar aanwezig, geen eindorgaanschade, geen extra risicofactoren", tip:"Herclassificeer bij toename duur, verslechtering regulatie of optreden van eindorgaanschade." },
+      { icoon:"🟠", tekst:"> 10 jaar of gebrekkige regulatie", sub:"Geen ernstige eindorgaanschade, geen atherosclerotische HVZ", badge:"hoog", actie:"resultaat", cat:"hoog", behandelGroep:"hoog_dm", reden:"DM type 2 >10 jaar aanwezig of gebrekkige glykemische regulatie, zonder ernstige eindorgaanschade of HVZ", tip:"Herclassificeer naar zeer hoog risico bij optreden van HVZ of ernstige eindorgaanschade." }
+    ]
+  },
+
+  cns: {
+    categorie: "Chronische nierschade",
+    vraag: "Heeft de patiënt chronische nierschade?",
+    context: "Zonder diabetes of atherosclerotische HVZ als comorbiditeit",
+    type: "jaNee",
+    ja: { actie: "ga", id:"cns-egfr" },
+    nee: { actie: "ga", id:"bp" }
+  },
+
+  "cns-egfr": {
+    categorie: "Chronische nierschade — eGFR",
+    vraag: "Wat is de eGFR?",
+    context: null,
+    type: "keuze",
+    opties: [
+      { icoon:"🔴", tekst:"< 29 mL/min/1,73 m²", sub:null, badge:"zeerhoog", actie:"resultaat", cat:"zeerhoog", behandelGroep:"zeerhoog", reden:"Ernstige chronische nierschade: eGFR &lt;29 mL/min/1,73 m²", tip:null },
+      { icoon:"🟠", tekst:"30 – 44 mL/min/1,73 m²", sub:null, badge:"door", actie:"ga", id:"cns-acr-3044" },
+      { icoon:"🟡", tekst:"45 – 59 mL/min/1,73 m²", sub:null, badge:"door", actie:"ga", id:"cns-acr-4559" },
+      { icoon:"🟢", tekst:"≥ 60 mL/min/1,73 m²", sub:null, badge:"door", actie:"ga", id:"cns-acr-60plus" }
+    ]
+  },
+
+  "cns-acr-3044": {
+    categorie: "Chronische nierschade — ACR (eGFR 30–44)",
+    vraag: "Wat is de albumine-creatinine ratio (ACR)?",
+    context: null,
+    type: "keuze",
+    opties: [
+      { icoon:"🟠", tekst:"< 3 mg/mmol", sub:"Normaal / geen albuminurie", badge:"hoog", actie:"resultaat", cat:"hoog", behandelGroep:"hoog_med", reden:"Matige CNS: eGFR 30–44 + ACR &lt;3 mg/mmol", tip:null },
+      { icoon:"🔴", tekst:"3 – 30 mg/mmol", sub:"Microalbuminurie", badge:"zeerhoog", actie:"resultaat", cat:"zeerhoog", behandelGroep:"zeerhoog", reden:"Ernstige CNS: eGFR 30–44 + microalbuminurie (ACR 3–30 mg/mmol)", tip:null },
+      { icoon:"🔴", tekst:"> 30 mg/mmol", sub:"Proteïnurie", badge:"zeerhoog", actie:"resultaat", cat:"zeerhoog", behandelGroep:"zeerhoog", reden:"Ernstige CNS: eGFR 30–44 + proteïnurie (ACR &gt;30 mg/mmol)", tip:null }
+    ]
+  },
+
+  "cns-acr-4559": {
+    categorie: "Chronische nierschade — ACR (eGFR 45–59)",
+    vraag: "Wat is de albumine-creatinine ratio (ACR)?",
+    context: null,
+    type: "keuze",
+    opties: [
+      { icoon:"🟢", tekst:"< 3 mg/mmol", sub:"Normaal — geen verhoogd CNS-risico via tabel S1", badge:"door", actie:"doorgaan", bericht:"eGFR 45–59 + ACR &lt;3: valt niet in een bijzondere risicogroep via tabel S1. Doorvragen naar bloeddruk en FH.", id:"bp", mildeCNS:true },
+      { icoon:"🟠", tekst:"3 – 30 mg/mmol", sub:"Microalbuminurie", badge:"hoog", actie:"resultaat", cat:"hoog", behandelGroep:"hoog_med", reden:"Matige CNS: eGFR 45–59 + microalbuminurie (ACR 3–30 mg/mmol)", tip:null },
+      { icoon:"🔴", tekst:"> 30 mg/mmol", sub:"Proteïnurie", badge:"zeerhoog", actie:"resultaat", cat:"zeerhoog", behandelGroep:"zeerhoog", reden:"Ernstige CNS: eGFR 45–59 + proteïnurie (ACR &gt;30 mg/mmol)", tip:null }
+    ]
+  },
+
+  "cns-acr-60plus": {
+    categorie: "Chronische nierschade — ACR (eGFR ≥60)",
+    vraag: "Wat is de albumine-creatinine ratio (ACR)?",
+    context: null,
+    type: "keuze",
+    opties: [
+      { icoon:"🟢", tekst:"< 3 mg/mmol", sub:"Normaal — geen verhoogd CNS-risico via tabel S1", badge:"door", actie:"doorgaan", bericht:"eGFR ≥60 + ACR &lt;3: geen bijzondere risicogroep via tabel S1. Doorvragen.", id:"bp" },
+      { icoon:"🟢", tekst:"3 – 30 mg/mmol", sub:"Microalbuminurie — geen bijzondere risicogroep via tabel S1", badge:"door", actie:"doorgaan", bericht:"eGFR ≥60 + microalbuminurie: valt niet in tabel S1 risicogroepen. Doorvragen.", id:"bp", mildeCNS:true },
+      { icoon:"🟠", tekst:"> 30 mg/mmol", sub:"Proteïnurie", badge:"hoog", actie:"resultaat", cat:"hoog", behandelGroep:"hoog_med", reden:"Matige CNS: eGFR ≥60 + proteïnurie (ACR &gt;30 mg/mmol)", tip:null }
+    ]
+  },
+
+  bp: {
+    categorie: "Bloeddruk",
+    vraag: "Is de systolische bloeddruk ≥ 180 mmHg?",
+    context: null,
+    type: "jaNee",
+    ja: { actie:"resultaat", cat:"hoog", behandelGroep:"hoog_med", reden:"Sterk verhoogde bloeddruk ≥ 180 mmHg systolisch", tip:"Behandel de hypertensie primair. Beoordeel het totale cardiovasculaire risicoprofiel." },
+    nee: { actie:"ga", id:"fh" }
+  },
+
+  fh: {
+    categorie: "Familiaire hypercholesterolemie",
+    vraag: "Is familiaire hypercholesterolemie aangetoond?",
+    context: "Klinisch (DLCNS-score ≥6) of via DNA-diagnostiek bevestigd",
+    type: "jaNee",
+    ja: { actie:"resultaat", cat:"hoog", behandelGroep:"hoog_med", reden:"Aangetoonde familiaire hypercholesterolemie (FH). FH-patiënten hebben bij eenzelfde cholesterolwaarde een hoger HVZ-risico dan patiënten zonder FH.", tip:"Zie ook de FH-scorecalculator voor indicatie DNA-diagnostiek en behandeladviezen." },
+    nee: { actie:"ga", id:"score2" }
+  },
+
+  score2: {
+    categorie: "SCORE2 / SCORE2-OP",
+    vraag: "Bepaal het 10-jaarsrisico via SCORE2",
+    context: "Geen bijzondere risicogroep gevonden — kies geslacht, rookstatus, bloeddruk en non-HDL.",
+    type: "score2"
+  }
+};
+
+// ─── STAPVOLGORDE (voor progress dots) ─────────────────────
+const hoofdStappen = ['hvz','dm','cns','bp','fh','score2'];
+
+// ─── RENDER ─────────────────────────────────────────────────
+function render(stapId, doorBericht) {
+  const kaart = document.getElementById('kaart');
+  kaart.classList.add('fade-out');
+  setTimeout(() => {
+    kaart.classList.remove('fade-out');
+    huidig = stapId;
+    updateProgress(stapId);
+
+    if (stapId === 'start') {
+      renderStart();
+    } else {
+      const stap = flow[stapId];
+      if (stap.type === 'score2') renderScore2(stap, doorBericht);
+      else if (stap.type === 'jaNee') renderJaNee(stap, doorBericht);
+      else if (stap.type === 'keuze') renderKeuze(stap, doorBericht);
+    }
+  }, 150);
+}
+
+function updateProgress(stapId) {
+  const idx = hoofdStappen.indexOf(stapId.split('-')[0]);
+  document.querySelectorAll('.prog-dot').forEach((d,i) => {
+    d.classList.remove('actief','klaar');
+    if (i < idx) d.classList.add('klaar');
+    else if (i === idx) d.classList.add('actief');
+  });
+  const pw = document.getElementById('progress-wrap');
+  pw.classList.toggle('zichtbaar', stapId !== 'start');
+  document.getElementById('leeftijd-badge').classList.toggle('zichtbaar', stapId !== 'start' && pLeeftijd !== null);
+}
+
+function terugKnop() {
+  return `<div class="kaart-footer"><button class="btn-terug" onclick="gaTerug()">← Terug</button></div>`;
+}
+
+function renderStart() {
+  pGeslachtStart = null;
+  document.getElementById('progress-wrap').classList.remove('zichtbaar');
+  document.getElementById('leeftijd-badge').classList.remove('zichtbaar');
+  document.getElementById('res-kaart').classList.remove('zichtbaar');
+  document.getElementById('kaart').innerHTML = `
+    <div class="start-body">
+      <h2>🫀 CV Risicocategorie bepalen</h2>
+      <p>Beantwoord stap voor stap de kernvragen. De tool bepaalt automatisch in welke risicocategorie de patiënt valt, op basis van tabel S1 (bijzondere groepen) of SCORE2.</p>
+      <div class="leeftijd-input-wrap">
+        <input type="number" id="inp-leeftijd" min="18" max="99" placeholder="—"
+          oninput="checkStartBtn()"
+          onkeydown="if(event.key==='Enter' && !document.getElementById('btn-start').disabled) startFlow()"/>
+        <label>jaar (leeftijd patiënt)</label>
+      </div>
+      <div style="margin-bottom:20px">
+        <div style="font-size:0.85rem;color:var(--grijs);font-weight:600;margin-bottom:8px">Geslacht</div>
+        <div class="chips" id="start-geslacht-chips">
+          <div class="chip" onclick="startKiesGeslacht('v',this)">♀ Vrouw</div>
+          <div class="chip" onclick="startKiesGeslacht('m',this)">♂ Man</div>
+        </div>
+      </div>
+      <button class="start-btn" id="btn-start" disabled onclick="startFlow()">Starten →</button>
+    </div>`;
+  setTimeout(() => document.getElementById('inp-leeftijd').focus(), 200);
+}
+
+function startKiesGeslacht(v, el) {
+  pGeslachtStart = v;
+  document.querySelectorAll('#start-geslacht-chips .chip').forEach(c => c.classList.remove('actief'));
+  el.classList.add('actief');
+  checkStartBtn();
+}
+
+function checkStartBtn() {
+  const val = parseInt(document.getElementById('inp-leeftijd')?.value);
+  const ok = val >= 18 && val <= 99 && pGeslachtStart !== null;
+  document.getElementById('btn-start').disabled = !ok;
+}
+
+function startFlow() {
+  pLeeftijd = parseInt(document.getElementById('inp-leeftijd').value);
+  pGeslacht = pGeslachtStart;
+  pGeslachtStart = null;
+  document.getElementById('badge-leeftijd').textContent = pLeeftijd;
+  document.getElementById('badge-geslacht').textContent = pGeslacht === 'v' ? '♀' : '♂';
+  s2 = { geslacht: pGeslacht, roken:null, bp:null, nonhdl:null, ra:'nee', cac:'geen' };
+  stapHistory = ['start'];
+  render('hvz');
+}
+
+function renderJaNee(stap, doorBericht) {
+  document.getElementById('kaart').innerHTML = `
+    ${doorBericht ? `<div class="door-banner">ℹ️ ${doorBericht}</div>` : ''}
+    <div class="vraag-top">
+      <div class="vraag-categorie">${stap.categorie}</div>
+      <div class="vraag-tekst">${stap.vraag}</div>
+      ${stap.context ? `<div class="vraag-context">${stap.context}</div>` : ''}
+    </div>
+    <div class="jn-wrap">
+      <button class="btn-ja"  onclick="antwoordJaNee(true)">✓ &nbsp;Ja</button>
+      <button class="btn-nee" onclick="antwoordJaNee(false)">✗ &nbsp;Nee</button>
+    </div>
+    ${stapHistory.length > 0 ? terugKnop() : ''}`;
+}
+
+function renderKeuze(stap, doorBericht) {
+  const opts = stap.opties.map((o,i) => `
+    <div class="keuze-optie" onclick="antwoordKeuze(${i})">
+      <span class="keuze-icon">${o.icoon}</span>
+      <div style="flex:1">
+        <div class="keuze-tekst">${o.tekst}</div>
+        ${o.sub ? `<div class="keuze-sub">${o.sub}</div>` : ''}
+      </div>
+      <span class="keuze-badge badge-${o.badge}">${badgeTekst(o.badge)}</span>
+    </div>`).join('');
+
+  document.getElementById('kaart').innerHTML = `
+    ${doorBericht ? `<div class="door-banner" style="margin-top:14px">ℹ️ ${doorBericht}</div>` : ''}
+    <div class="vraag-top">
+      <div class="vraag-categorie">${stap.categorie}</div>
+      <div class="vraag-tekst">${stap.vraag}</div>
+      ${stap.context ? `<div class="vraag-context">${stap.context}</div>` : ''}
+    </div>
+    <div class="vraag-antwoorden">${opts}</div>
+    ${terugKnop()}`;
+}
+
+function renderScore2(stap, doorBericht) {
+  // Bepaal leeftijdsgroep op basis van pLeeftijd
+  let defaultLeeftijdIdx = leeftijdGroepen.findIndex((g,i) => {
+    const min = 40 + i*5, max = min+4;
+    return pLeeftijd >= min && pLeeftijd <= max;
+  });
+  const leeftijdLabel = defaultLeeftijdIdx >= 0 ? leeftijdGroepen[defaultLeeftijdIdx] : null;
+
+  if (defaultLeeftijdIdx >= 0 && !s2.leeftijdIdx) {
+    s2.leeftijdIdx = defaultLeeftijdIdx;
+  }
+
+  const gChips = [['v','♀ Vrouw'],['m','♂ Man']].map(([v,l]) =>
+    `<div class="chip${s2.geslacht===v?' actief':''}" onclick="s2kies('geslacht','${v}',this)">${l}</div>`).join('');
+  const lChips = leeftijdGroepen.map((g,i) =>
+    `<div class="chip${s2.leeftijdIdx===i?' actief':''}" onclick="s2kies('leeftijdIdx',${i},this)">${g}</div>`).join('');
+  const rChips = [['n','🚭 Niet-roker'],['r','🚬 Roker']].map(([v,l]) =>
+    `<div class="chip${s2.roken===v?' actief':''}" onclick="s2kies('roken','${v}',this)">${l}</div>`).join('');
+  const bpChips = [['100','100–119 mmHg'],['120','120–139 mmHg'],['140','140–159 mmHg'],['160','160–179 mmHg']].map(([v,l]) =>
+    `<div class="chip${s2.bp===v?' actief':''}" onclick="s2kies('bp','${v}',this)">${l}</div>`).join('');
+  const nChips = [['0','3,0–3,9 mmol/L'],['1','4,0–4,9 mmol/L'],['2','5,0–5,9 mmol/L'],['3','≥6,0 mmol/L']].map(([v,l]) =>
+    `<div class="chip${s2.nonhdl===v?' actief':''}" onclick="s2kies('nonhdl','${v}',this)">${l}</div>`).join('');
+  const raChips = [['nee','Nee'],['ja','Ja']].map(([v,l]) =>
+    `<div class="chip${(s2.ra||'nee')===v?' actief':''}" onclick="s2kies('ra','${v}',this)">${l}</div>`).join('');
+  const cacChips = [['geen','Niet bepaald'],['0','Score = 0'],['hoog','≥ 100 / ≥ 75e perc.']].map(([v,l]) =>
+    `<div class="chip${(s2.cac||'geen')===v?' actief':''}" onclick="s2kies('cac','${v}',this)">${l}</div>`).join('');
+  const cacLeeftijdNote = (pLeeftijd < 50 || pLeeftijd > 70)
+    ? `<div style="font-size:0.72rem;color:var(--geel);margin-top:5px;line-height:1.4">⚠️ Aanbevolen bij 50–70 jaar bij twijfel over behandelkeuze</div>`
+    : `<div style="font-size:0.72rem;color:var(--grijs);margin-top:5px;line-height:1.4">Overweeg bij twijfel over medicamenteuze behandeling (leeftijd 50–70 jaar)</div>`;
+
+  const ageNote = leeftijdLabel ? `<div style="font-size:0.78rem;color:var(--blauw);background:var(--blauw-licht);padding:5px 10px;border-radius:8px;display:inline-block;margin-top:4px">📌 Leeftijd ${pLeeftijd} jaar → groep ${leeftijdLabel} automatisch geselecteerd</div>` : '';
+
+  document.getElementById('kaart').innerHTML = `
+    ${doorBericht ? `<div class="door-banner" style="margin-top:14px">ℹ️ ${doorBericht}</div>` : ''}
+    <div class="vraag-top">
+      <div class="vraag-categorie">${stap.categorie}</div>
+      <div class="vraag-tekst">${stap.vraag}</div>
+      ${stap.context ? `<div class="vraag-context">${stap.context}</div>` : ''}
+    </div>
+    <div class="s2-wrap">
+      <div>
+        <div class="s2-rij-label">Geslacht</div>
+        <div class="chips">${gChips}</div>
+      </div>
+      <div>
+        <div class="s2-rij-label">Leeftijdsgroep</div>
+        <div class="chips">${lChips}</div>
+        ${ageNote}
+      </div>
+      <div>
+        <div class="s2-rij-label">Rookstatus</div>
+        <div class="chips">${rChips}</div>
+      </div>
+      <div>
+        <div class="s2-rij-label">Systolische bloeddruk</div>
+        <div class="chips">${bpChips}</div>
+      </div>
+      <div>
+        <div class="s2-rij-label">Non-HDL cholesterol</div>
+        <div class="chips">${nChips}</div>
+      </div>
+      <div style="border-top:1px solid var(--rand);padding-top:10px">
+        <div class="s2-rij-label">Reumatoïde artritis</div>
+        <div style="font-size:0.75rem;color:var(--grijs);margin-bottom:7px">Aanwezig → SCORE2 × 1,5 (NHG-CVRM)</div>
+        <div class="chips">${raChips}</div>
+      </div>
+      <div style="border-top:1px solid var(--rand);padding-top:10px">
+        <div class="s2-rij-label">Coronaire kalkscore (CAC)</div>
+        <div style="font-size:0.75rem;color:var(--grijs);margin-bottom:7px">Reclassificatie naar lager of hoger risico indien bekend</div>
+        <div class="chips">${cacChips}</div>
+        ${cacLeeftijdNote}
+      </div>
+    </div>
+    ${terugKnop()}`;
+
+  berekenScore2();
+}
+
+// ─── ANTWOORD HANDLERS ──────────────────────────────────────
+function antwoordJaNee(ja) {
+  stapHistory.push(huidig);
+  const stap = flow[huidig];
+  const keuze = ja ? stap.ja : stap.nee;
+  verwerkActie(keuze);
+}
+
+function antwoordKeuze(idx) {
+  stapHistory.push(huidig);
+  const opt = flow[huidig].opties[idx];
+  verwerkActie(opt);
+}
+
+function verwerkActie(actie) {
+  // Bijhouden milde nierschade (eGFR 45-59+ACR<3 of eGFR≥60+ACR 3-30 → ×1,5 op SCORE2)
+  if (actie.mildeCNS) {
+    mildeCNS = true;
+    mildeCNSStep = huidig;
+  } else if (huidig === mildeCNSStep) {
+    // Gebruiker koos op de mildeCNS-stap een andere optie (bijv. ACR >30 → resultaat)
+    mildeCNS = false;
+    mildeCNSStep = null;
+  }
+  if (actie.actie === 'resultaat') {
+    toonResultaat(actie);
+  } else if (actie.actie === 'ga') {
+    render(actie.id);
+  } else if (actie.actie === 'doorgaan') {
+    render(actie.id, actie.bericht);
+  }
+}
+
+function gaTerug() {
+  if (stapHistory.length === 0) return;
+  const vorige = stapHistory.pop();
+  // Reset mildeCNS als we terug gaan vóór de stap waarop het werd ingesteld
+  if (mildeCNSStep && vorige !== mildeCNSStep && !stapHistory.includes(mildeCNSStep)) {
+    mildeCNS = false;
+    mildeCNSStep = null;
+  }
+  document.getElementById('res-kaart').classList.remove('zichtbaar');
+  huidig = vorige;
+  render(vorige);
+}
+
+// ─── CARDIOVASCULAIRE RISICOLEEFTIJD ─────────────────────────
+// Optimaal profiel: niet-roker, SBD 100–119 mmHg, non-HDL 3,0–3,9 mmol/L
+// Geeft de leeftijd van iemand met optimale risicofactoren maar hetzelfde SCORE2-risico
+function berekenRisicoleeftijd(geslacht, pct) {
+  const optimal = s2data[geslacht]['n'].map(row => row[0][0]);
+  const n = optimal.length;
+  if (pct > optimal[n - 1]) return '> 79 jaar';
+  if (pct <= optimal[0])    return `${leeftijdMid[0]} jaar`;
+  let bestIdx = 0, bestDiff = Infinity;
+  for (let i = 0; i < n; i++) {
+    const diff = Math.abs(optimal[i] - pct);
+    if (diff < bestDiff || (diff === bestDiff && optimal[i] >= pct)) {
+      bestDiff = diff; bestIdx = i;
+    }
+  }
+  return `~\u2009${leeftijdMid[bestIdx]} jaar`;
+}
+
+// ─── SCORE2 ─────────────────────────────────────────────────
+function s2kies(veld, waarde, chip) {
+  const isNum = veld === 'leeftijdIdx' || veld === 'nonhdl';
+  s2[veld] = isNum ? parseInt(waarde) : waarde;
+  const parent = chip.closest('.chips');
+  parent.querySelectorAll('.chip').forEach(c => c.classList.remove('actief'));
+  chip.classList.add('actief');
+  berekenScore2();
+}
+
+function berekenScore2() {
+  const { geslacht, leeftijdIdx, roken, bp, nonhdl } = s2;
+  if (geslacht === null || leeftijdIdx === null || roken === null || bp === null || nonhdl === null) return;
+  const bIdx = bpIdx[bp];
+  const basePct = s2data[geslacht][roken][leeftijdIdx][bIdx][nonhdl];
+  const heeftRA = s2.ra === 'ja';
+  const heeftMildeCNS = mildeCNS;
+  // Pas ×1,5 toe per van toepassing zijnde factor (RA en/of milde nierschade)
+  let multiplier = 1;
+  if (heeftRA)       multiplier *= 1.5;
+  if (heeftMildeCNS) multiplier *= 1.5;
+  const pct = multiplier > 1 ? Math.min(Math.round(basePct * multiplier), 99) : basePct;
+  const mid = leeftijdMid[leeftijdIdx];
+
+  let cat;
+  if (mid < 50) {
+    if (pct < 2.5)      cat = 'laag';
+    else if (pct < 7.5) cat = 'matig';
+    else                cat = 'hoog';
+  } else if (mid < 70) {
+    if (pct < 5)        cat = 'laag';
+    else if (pct < 10)  cat = 'matig';
+    else                cat = 'hoog';
+  } else {
+    cat = pct < 15 ? 'laag' : 'hoog';
+  }
+
+  // ─ CAC reclassificatie ─
+  const catOrigineel = cat;
+  if (s2.cac === '0') {
+    if (cat === 'hoog') cat = 'matig';
+    else if (cat === 'matig') cat = 'laag';
+  } else if (s2.cac === 'hoog') {
+    if (cat === 'laag') cat = 'matig';
+    else if (cat === 'matig') cat = 'hoog';
+  }
+  const cacReclassified = cat !== catOrigineel;
+
+  const behandelGroepMap = { laag:'laag', matig:'matig_score2', hoog:'hoog_score2' };
+  const isOP = mid >= 70;
+  const gLabel = geslacht === 'v' ? 'Vrouw' : 'Man';
+  const rLabel = roken === 'n' ? 'niet-roker' : 'roker';
+  const bpLab = ['100–119','120–139','140–159','160–179'][bIdx];
+  const nLab = ['3,0–3,9','4,0–4,9','5,0–5,9','≥6,0'][nonhdl];
+  const tips = {
+    laag: 'Bespreek leefstijladviezen (roken stoppen, bewegen, voeding). Herbereken bij verandering risicofactoren.',
+    matig:'Bespreek leefstijl. Bij jonge patiënten: weeg het leeftijdsgebonden risico mee in de beslissing.',
+    hoog: 'Beoordeel alle risicofactoren. Bespreek leefstijl én medicamenteuze opties.'
+  };
+
+  toonResultaat({
+    cat, catOrigineel, cacReclassified, cac: s2.cac,
+    isPct: true, pct, heeftRA, heeftMildeCNS, basePct: (heeftRA || heeftMildeCNS) ? basePct : null,
+    risicoleeftijd: berekenRisicoleeftijd(geslacht, pct),
+    behandelGroep: behandelGroepMap[cat],
+    reden: `<strong>${gLabel}</strong>, ${leeftijdGroepen[leeftijdIdx]} jaar, ${rLabel} &nbsp;·&nbsp; bloeddruk ${bpLab} mmHg &nbsp;·&nbsp; non-HDL ${nLab} mmol/L${heeftRA ? ' &nbsp;·&nbsp; 🦴 RA (×1,5)' : ''}${heeftMildeCNS ? ' &nbsp;·&nbsp; 🫘 Milde CNS (×1,5)' : ''}${s2.cac !== 'geen' ? ` &nbsp;·&nbsp; 🫀 CAC ${s2.cac === '0' ? '= 0' : '≥ 100 / ≥ 75e perc.'}` : ''}`,
+    bron: `SCORE2${isOP?'-OP':''} hoog-risico Europa (ESC 2021 / NHG-CVRM)`,
+    tip: tips[cat]
+  });
+}
+
+// ─── RESULTAAT TONEN ────────────────────────────────────────
+const catNamen = { zeerhoog:'Zeer hoog risico', hoog:'Hoog risico', matig:'Matig verhoogd risico', laag:'Laag risico' };
+const catLabels = { zeerhoog:'Risicocategorie tabel S1', hoog:'Risicocategorie tabel S1', matig:'Risicocategorie tabel S1', laag:'Risicocategorie' };
+
+function badgeTekst(b) {
+  return b==='zeerhoog'?'Zeer hoog':b==='hoog'?'Hoog':b==='matig'?'Matig verhoogd':b==='laag'?'Laag':'Doorvragen →';
+}
+
+function toonResultaat(r) {
+  lifeS1 = { geslacht: pGeslacht, roken: null, bp: null, nonhdl: null };
+  const res = document.getElementById('res-kaart');
+  const thema = `thema-${r.cat}`;
+  let html = `<div class="${thema}">
+    <div class="res-top">
+      <div class="res-label-klein">${r.isPct ? `SCORE2${leeftijdMid[s2.leeftijdIdx]>=70?'-OP':''} — 10-jaarsrisico HVZ` : catLabels[r.cat]}</div>
+      ${r.isPct ? `<div class="res-pct-rij" style="${r.cac && r.cac !== 'geen' ? 'opacity:0.4;' : ''}"><span class="res-pct-groot">${r.pct}%</span><span class="res-pct-sub">fataal + niet-fataal${r.cac && r.cac !== 'geen' ? '<br><span style="font-size:0.68rem">zie reclassificatie ↓</span>' : ''}</span></div>` : ''}
+      ${(r.heeftRA || r.heeftMildeCNS) ? `<div style="font-size:0.76rem;opacity:0.85;margin-top:2px;margin-bottom:1px">${
+        r.heeftRA && r.heeftMildeCNS
+          ? `🦴🫘 RA + milde CNS: ${r.basePct}% × 1,5 × 1,5 = <strong>${r.pct}%</strong>`
+          : r.heeftRA
+            ? `🦴 RA-correctie: ${r.basePct}% × 1,5 = <strong>${r.pct}%</strong>`
+            : `🫘 Milde CNS-correctie: ${r.basePct}% × 1,5 = <strong>${r.pct}%</strong>`
+      }</div>` : ''}
+      ${r.isPct && r.risicoleeftijd && !(r.cac && r.cac !== 'geen') ? `<div class="res-risicoleeftijd">🎂 Cardiovasculaire risicoleeftijd: ${r.risicoleeftijd}</div>` : ''}
+      <div class="res-naam">${catNamen[r.cat]}</div>
+    </div>
+    <div class="res-reden-box">${r.reden}</div>`;
+  if (r.cacReclassified) {
+    const cacNeer = r.cac === '0';
+    const cacBg  = cacNeer ? 'var(--groen-licht)' : 'var(--oranje-licht)';
+    const cacClr = cacNeer ? 'var(--groen)' : 'var(--oranje)';
+    html += `<div style="padding:9px 22px;font-size:0.82rem;line-height:1.5;border-bottom:1px solid rgba(0,0,0,0.06);background:${cacBg};color:${cacClr}">
+      ${cacNeer?'↓':'↑'} <strong>Coronaire kalkscore ${cacNeer ? '= 0' : '≥ 100 / ≥ 75e percentiel'}</strong> — reclassificatie van <em>${catNamen[r.catOrigineel]}</em> naar <strong>${catNamen[r.cat]}</strong>
+    </div>`;
+  }
+  if (r.bron) html += `<div class="res-info-rij"><strong>Bron</strong>${r.bron}</div>`;
+  if (r.tip)  html += `<div class="res-tip">💡 ${r.tip}</div>`;
+  html += renderBehandel(r.behandelGroep);
+  html += r.isPct ? renderLifeScore2(r.behandelGroep) : renderLifeS1(r.behandelGroep);
+  html += `<button class="btn-opnieuw" onclick="opnieuw()">↩ Nieuwe patiënt</button>`;
+  html += `</div>`;
+  res.innerHTML = html;
+  res.classList.add('zichtbaar');
+  res.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function opnieuw() {
+  pLeeftijd = null; pGeslacht = null; pGeslachtStart = null;
+  stapHistory = []; s2 = {};
+  mildeCNS = false; mildeCNSStep = null;
+  document.getElementById('res-kaart').classList.remove('zichtbaar');
+  render('start');
+}
+
+// ─── INIT ────────────────────────────────────────────────────
+render('start');
+
+// ─── TOOLTIP POSITIONERING ───────────────────────────────────
+document.addEventListener('mouseover', function(e) {
+  const btn = e.target.closest('.info-btn');
+  if (!btn) return;
+  const tip = btn.querySelector('.info-tip');
+  if (!tip) return;
+  const r = btn.getBoundingClientRect();
+  tip.style.left = Math.min(r.left, window.innerWidth - 275) + 'px';
+  tip.style.top = (r.top - tip.offsetHeight - 8) + 'px';
+  // als er geen ruimte boven is, toon onder
+  if (r.top - tip.offsetHeight - 8 < 8) {
+    tip.style.top = (r.bottom + 8) + 'px';
+  }
+});
+</script>
+</body>
+</html>
