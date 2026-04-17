@@ -486,6 +486,13 @@ const behandelInfo = {
     bd_noot: 'Voorzichtig titreren bij ouderen. Stop intensiveren bij diastolisch &lt;70 mmHg bij kwetsbare ouderen.',
     med: 'overweeg', leefstijl: true, extra: null
   },
+  hoog_aanbevolen: {
+    ldl: { le70_v:'<strong>&lt;2,6</strong> mmol/L', le70_k:'<strong>&lt;2,6</strong> mmol/L', gt70:'<strong>&lt;2,6</strong> mmol/L' },
+    ldl_noot: {},
+    bd: { le70_v:'&lt;140 mmHg (evt. &lt;130 mmHg)', le70_k:'&lt;150 mmHg (evt. &lt;140 mmHg)', gt70:'&lt;150 mmHg &amp; diastolisch &gt;70 mmHg (voorzichtig titreren)' },
+    bd_noot: 'Voorzichtig titreren bij ouderen. Stop intensiveren bij diastolisch &lt;70 mmHg bij kwetsbare ouderen.',
+    med: 'aanbevolen', leefstijl: true, extra: null
+  },
   hoog_score2: {
     ldl: { le70_v:'<strong>&lt;2,6</strong> mmol/L', le70_k:'<strong>&lt;2,6</strong> mmol/L', gt70:'<strong>&lt;2,6</strong> mmol/L' },
     ldl_noot: {},
@@ -1477,8 +1484,8 @@ function lifeKies(veld, waarde, chip, isScore2, behandelGroep) {
 
 // ─── SCORE2 DATA ────────────────────────────────────────────
 const s2data = {
-  v:{n:[[[1,1,1,2],[1,2,2,2],[2,2,3,3],[3,3,4,4]],[[2,2,2,2],[2,2,3,3],[3,3,4,4],[4,5,5,6]],[[2,3,3,3],[3,3,4,5],[4,5,5,6],[6,7,8,9]],[[3,3,4,5],[4,5,6,7],[6,7,8,9],[8,9,11,12]],[[4,5,5,6],[6,6,8,9],[8,9,10,12],[11,12,14,16]],[[5,6,7,9],[7,9,10,11],[10,12,13,15],[14,16,18,21]],[[6,7,7,8],[9,9,10,11],[12,13,14,15],[17,19,21,22]],[[8,8,9,9],[11,11,12,13],[14,15,17,18],[21,22,23,24]]],r:[[[2,2,2,3],[2,3,3,4],[3,4,4,5],[4,5,6,7]],[[2,3,3,4],[3,4,5,5],[5,5,6,8],[6,7,9,10]],[[3,4,4,5],[5,5,6,7],[6,7,9,10],[9,10,12,14]],[[4,5,6,7],[6,7,8,10],[9,10,12,13],[12,14,16,18]],[[5,7,8,9],[8,9,11,13],[11,13,15,18],[16,18,21,24]],[[7,8,10,12],[10,12,13,16],[14,16,18,22],[19,22,25,29]],[[8,10,11,12],[12,13,15,17],[16,18,20,22],[22,25,27,30]],[[10,12,13,15],[14,16,18,20],[19,21,24,27],[26,29,32,35]]]},
-  m:{n:[[[1,2,2,2],[2,2,3,3],[3,3,4,5],[4,5,6,7]],[[2,2,3,3],[3,3,4,5],[4,5,6,7],[6,7,8,10]],[[3,3,4,5],[4,5,5,7],[6,7,8,9],[8,10,11,13]],[[4,5,6,7],[5,7,8,9],[8,9,11,13],[11,13,15,17]],[[5,6,7,8],[7,8,10,12],[10,12,14,16],[14,16,19,22]],[[6,8,9,11],[9,11,13,15],[12,14,17,20],[17,20,23,27]],[[7,8,9,11],[10,11,13,15],[13,15,17,20],[19,21,24,27]],[[8,10,11,13],[12,13,16,18],[16,18,21,25],[19,22,25,28]]],r:[[[2,3,3,4],[3,4,5,6],[4,5,7,8],[6,7,9,11]],[[3,4,5,6],[5,6,7,8],[7,8,10,12],[9,11,14,16]],[[4,5,7,8],[6,8,9,11],[9,11,13,16],[13,15,18,21]],[[6,7,9,11],[8,10,12,15],[12,14,17,21],[17,20,24,28]],[[7,9,11,13],[10,13,15,19],[15,18,22,26],[21,25,29,34]],[[9,11,13,17],[13,16,19,23],[18,22,26,31],[25,29,35,40]],[[10,13,15,18],[15,17,20,24],[20,23,27,31],[27,31,35,39]],[[12,14,18,21],[17,20,24,28],[23,27,31,35],[30,34,38,43]]]}
+  v:{n:[[[1,1,1,1],[1,1,1,1],[1,1,1,1],[2,2,2,3]],[[1,1,1,1],[1,2,2,2],[2,2,2,3],[2,3,3,3]],[[2,2,2,2],[2,2,2,3],[3,3,3,3],[3,4,4,4]],[[2,2,3,3],[3,3,3,3],[3,4,4,4],[4,5,5,5]],[[3,3,4,4],[4,4,4,5],[5,5,5,6],[6,6,7,7]],[[5,5,5,5],[5,6,6,6],[7,7,7,7],[8,8,9,9]],[[6,6,6,7],[7,7,8,8],[9,9,10,10],[10,11,12,12]],[[9,10,10,11],[11,11,12,13],[13,13,14,15],[15,15,16,17]]],r:[[[2,2,2,2],[2,3,3,3],[3,3,4,4],[4,4,5,6]],[[2,2,3,3],[3,3,4,4],[4,4,5,5],[5,5,6,7]],[[3,3,4,4],[4,4,5,5],[5,5,6,6],[6,7,7,8]],[[4,4,5,5],[5,5,6,6],[6,7,7,8],[8,8,9,10]],[[5,6,6,6],[6,7,7,8],[8,8,9,9],[10,10,11,11]],[[7,7,7,8],[8,9,9,9],[10,10,11,11],[12,12,13,13]],[[9,10,10,11],[11,12,13,14],[14,15,16,16],[17,18,19,20]],[[13,14,15,15],[15,16,17,18],[18,19,20,21],[21,22,23,24]]]},
+  m:{n:[[[1,2,2,2],[2,2,3,3],[2,3,3,4],[3,4,5,5]],[[2,3,3,4],[2,3,3,4],[3,4,4,5],[4,5,6,6]],[[3,3,3,4],[3,4,5,5],[4,5,5,6],[5,6,7,8]],[[4,4,4,5],[4,5,5,6],[5,6,7,8],[7,7,8,8]],[[5,5,6,6],[6,6,7,8],[7,8,8,9],[8,9,10,11]],[[6,7,7,8],[8,8,9,10],[9,10,11,11],[11,12,12,13]],[[8,8,9,10],[10,11,12,13],[12,13,14,16],[15,16,18,19]],[[12,13,15,17],[14,15,18,20],[16,18,21,23],[19,21,24,27]]],r:[[[3,3,4,5],[3,4,5,6],[5,5,6,8],[6,7,8,10]],[[3,4,5,5],[4,5,6,7],[6,7,8,9],[7,8,10,11]],[[4,5,6,7],[6,6,7,8],[7,8,9,10],[9,10,11,13]],[[6,6,7,8],[7,8,9,10],[9,10,11,12],[10,12,13,15]],[[7,8,9,10],[9,10,10,11],[10,11,13,14],[13,14,15,17]],[[9,10,11,11],[11,12,13,13],[13,14,15,16],[15,16,17,19]],[[12,13,14,15],[14,16,17,19],[18,19,21,23],[22,24,26,28]],[[15,17,19,22],[18,20,23,26],[21,23,26,30],[24,27,31,34]]]}
 };
 const leeftijdGroepen = ['40-44','45-49','50-54','55-59','60-64','65-69','70-74','75-79'];
 const bpIdx = {'100':0,'120':1,'140':2,'160':3};
@@ -1513,20 +1520,11 @@ const flow = {
 
   dm: {
     categorie: "Diabetes mellitus",
-    vraag: "Heeft de patiënt diabetes mellitus type 2?",
-    context: "Patiënten met DM type 1 en leeftijd > 40 jaar kunnen ook via deze categorieën worden geclassificeerd.",
+    vraag: "Heeft de patiënt DM type 2, of DM type 1 én leeftijd > 40 jaar?",
+    context: "Kies <strong>Ja</strong> bij DM2 (alle leeftijden) of DM1 > 40 jaar. Kies <strong>Nee</strong> bij geen diabetes of DM1 ≤ 40 jaar.",
     type: "jaNee",
-    ja: { actie: "ga", id:"dm-hvz" },
+    ja: { actie: "ga", id:"dm-organ" },
     nee: { actie: "ga", id:"cns" }
-  },
-
-  "dm-hvz": {
-    categorie: "Diabetes mellitus",
-    vraag: "Is er bij deze diabetespatiënt ook atherosclerotische HVZ vastgesteld?",
-    context: null,
-    type: "jaNee",
-    ja: { actie: "resultaat", cat:"zeerhoog", behandelGroep:"hvz", reden:"DM + vastgestelde atherosclerotische HVZ", tip:null },
-    nee: { actie: "ga", id:"dm-organ" }
   },
 
   "dm-organ": {
@@ -1617,7 +1615,7 @@ const flow = {
     vraag: "Is de systolische bloeddruk ≥ 180 mmHg?",
     context: null,
     type: "jaNee",
-    ja: { actie:"resultaat", cat:"hoog", behandelGroep:"hoog_med", reden:"Sterk verhoogde bloeddruk ≥ 180 mmHg systolisch", tip:"Behandel de hypertensie primair. Beoordeel het totale cardiovasculaire risicoprofiel." },
+    ja: { actie:"resultaat", cat:"hoog", behandelGroep:"hoog_aanbevolen", reden:"Sterk verhoogde bloeddruk ≥ 180 mmHg systolisch", tip:"Behandel de hypertensie primair. Beoordeel het totale cardiovasculaire risicoprofiel." },
     nee: { actie:"ga", id:"fh" }
   },
 
@@ -1626,7 +1624,7 @@ const flow = {
     vraag: "Is familiaire hypercholesterolemie aangetoond?",
     context: "Klinisch (DLCNS-score ≥6) of via DNA-diagnostiek bevestigd",
     type: "jaNee",
-    ja: { actie:"resultaat", cat:"hoog", behandelGroep:"hoog_med", reden:"Aangetoonde familiaire hypercholesterolemie (FH). FH-patiënten hebben bij eenzelfde cholesterolwaarde een hoger HVZ-risico dan patiënten zonder FH.", tip:"Zie ook de FH-scorecalculator voor indicatie DNA-diagnostiek en behandeladviezen." },
+    ja: { actie:"resultaat", cat:"hoog", behandelGroep:"hoog_aanbevolen", reden:"Aangetoonde familiaire hypercholesterolemie (FH). FH-patiënten hebben bij eenzelfde cholesterolwaarde een hoger HVZ-risico dan patiënten zonder FH.", tip:"Zie ook de FH-scorecalculator voor indicatie DNA-diagnostiek en behandeladviezen." },
     nee: { actie:"ga", id:"score2" }
   },
 
@@ -1692,6 +1690,7 @@ function renderStart() {
           onkeydown="if(event.key==='Enter' && !document.getElementById('btn-start').disabled) startFlow()"/>
         <label>jaar (leeftijd patiënt)</label>
       </div>
+      <div id="leeftijd-waarschuwing" style="display:none;margin:-8px 0 16px;padding:8px 12px;background:#fff8e6;border:1px solid #f5d472;border-radius:8px;font-size:0.82rem;color:#3a2d00;line-height:1.45"></div>
       <div style="margin-bottom:20px">
         <div style="font-size:0.85rem;color:var(--grijs);font-weight:600;margin-bottom:8px">Geslacht</div>
         <div class="chips" id="start-geslacht-chips">
@@ -1715,6 +1714,20 @@ function checkStartBtn() {
   const val = parseInt(document.getElementById('inp-leeftijd')?.value);
   const ok = val >= 18 && val <= 99 && pGeslachtStart !== null;
   document.getElementById('btn-start').disabled = !ok;
+
+  // Waarschuwing tonen bij leeftijd buiten SCORE2/SCORE2-OP bereik (40–79 jaar)
+  const waarsch = document.getElementById('leeftijd-waarschuwing');
+  if (waarsch) {
+    if (!isNaN(val) && val >= 18 && val <= 99 && (val < 40 || val >= 80)) {
+      const tooYoung = val < 40;
+      waarsch.innerHTML = tooYoung
+        ? `⚠️ <strong>Leeftijd &lt; 40 jaar:</strong> SCORE2 is niet gevalideerd. Alleen de bijzondere risicogroepen (HVZ, DM, CNS, FH) zijn toepasbaar.`
+        : `⚠️ <strong>Leeftijd ≥ 80 jaar:</strong> SCORE2-OP is niet gevalideerd. Alleen de bijzondere risicogroepen (HVZ, DM, CNS, FH) zijn toepasbaar; behandelbeslissingen zijn individueel.`;
+      waarsch.style.display = 'block';
+    } else {
+      waarsch.style.display = 'none';
+    }
+  }
 }
 
 function startFlow() {
@@ -1766,6 +1779,42 @@ function renderKeuze(stap, doorBericht) {
 }
 
 function renderScore2(stap, doorBericht) {
+  // ── Leeftijdsvalidatie: SCORE2 (40–69) en SCORE2-OP (70–79) ──
+  // Patiënten <40 of ≥80 vallen buiten het toepassingsgebied van SCORE2/SCORE2-OP.
+  if (pLeeftijd < 40 || pLeeftijd >= 80) {
+    const tooYoung = pLeeftijd < 40;
+    const titel = tooYoung
+      ? `Leeftijd ${pLeeftijd} jaar — buiten SCORE2-bereik`
+      : `Leeftijd ${pLeeftijd} jaar — buiten SCORE2-OP-bereik`;
+    const uitleg = tooYoung
+      ? `SCORE2 is gevalideerd voor patiënten van <strong>40–69 jaar</strong>. Voor patiënten jonger dan 40 jaar is een 10-jaars-risicoschatting niet zinvol; de absolute kans op een cardiovasculair event is laag, terwijl het lifetime-risico aanzienlijk kan zijn.`
+      : `SCORE2-OP is gevalideerd voor patiënten van <strong>70–79 jaar</strong> (Nederlandse implementatie). Voor patiënten van 80 jaar en ouder geldt geen formele risicoschatting; behandelbeslissingen worden individueel gemaakt op basis van comorbiditeit, kwetsbaarheid, levensverwachting en patiëntvoorkeur.`;
+    const advies = tooYoung
+      ? `<ul style="margin:8px 0 0 18px;padding:0;line-height:1.6">
+           <li>Beoordeel of de patiënt valt onder een <strong>bijzondere risicogroep</strong> (HVZ, DM, CNS, FH) — deze categorieën gelden ongeacht leeftijd.</li>
+           <li>Bespreek <strong>leefstijl</strong> en herhaal de beoordeling vanaf 40 jaar.</li>
+           <li>Bij sterk verhoogde individuele risicofactoren (bijv. familiair belast, ernstige hypercholesterolemie): overweeg verwijzing of nadere diagnostiek.</li>
+         </ul>`
+      : `<ul style="margin:8px 0 0 18px;padding:0;line-height:1.6">
+           <li>Beoordeel of de patiënt valt onder een <strong>bijzondere risicogroep</strong> (HVZ, DM, CNS, FH) — deze categorieën gelden ongeacht leeftijd.</li>
+           <li>Weeg bij behandelbeslissingen <strong>kwetsbaarheid, levensverwachting, polyfarmacie en patiëntvoorkeur</strong> mee.</li>
+           <li>Zie de NHG-richtlijnen <em>"Bloeddruk bij ouderen"</em> en <em>"Cholesterol bij ouderen"</em>.</li>
+         </ul>`;
+    document.getElementById('kaart').innerHTML = `
+      ${doorBericht ? `<div class="door-banner" style="margin-top:14px">ℹ️ ${doorBericht}</div>` : ''}
+      <div class="vraag-top">
+        <div class="vraag-categorie">${stap.categorie}</div>
+        <div class="vraag-tekst">⚠️ ${titel}</div>
+      </div>
+      <div style="background:#fff8e6;border:1px solid #f5d472;border-radius:10px;padding:14px 16px;margin:8px 0 4px;line-height:1.55;font-size:0.92rem;color:#3a2d00">
+        <div>${uitleg}</div>
+        <div style="margin-top:10px;font-weight:700">Wat nu?</div>
+        ${advies}
+      </div>
+      ${terugKnop()}`;
+    return;
+  }
+
   // Bepaal leeftijdsgroep op basis van pLeeftijd
   let defaultLeeftijdIdx = leeftijdGroepen.findIndex((g,i) => {
     const min = 40 + i*5, max = min+4;
@@ -1973,7 +2022,7 @@ function berekenScore2() {
     risicoleeftijd: berekenRisicoleeftijd(geslacht, pct),
     behandelGroep: behandelGroepMap[cat],
     reden: `<strong>${gLabel}</strong>, ${leeftijdGroepen[leeftijdIdx]} jaar, ${rLabel} &nbsp;·&nbsp; bloeddruk ${bpLab} mmHg &nbsp;·&nbsp; non-HDL ${nLab} mmol/L${heeftRA ? ' &nbsp;·&nbsp; 🦴 RA (×1,5)' : ''}${heeftMildeCNS ? ' &nbsp;·&nbsp; 🫘 Milde CNS (×1,5)' : ''}${s2.cac !== 'geen' ? ` &nbsp;·&nbsp; 🫀 CAC ${s2.cac === '0' ? '= 0' : '≥ 100 / ≥ 75e perc.'}` : ''}`,
-    bron: `SCORE2${isOP?'-OP':''} hoog-risico Europa (ESC 2021 / NHG-CVRM)`,
+    bron: `SCORE2${isOP?'-OP':''} laag-risico Europa (ESC 2021 / NHG-CVRM 2024)`,
     tip: tips[cat]
   });
 }
